@@ -1,13 +1,32 @@
 import { Link } from "react-router-dom";
 import React from "react";
 import  { useState, useEffect } from "react";
+import axios from "axios";
+
+
 
 function Dashboard () {
-    const [itemName, setItemName] = useState('');
-    const [quantity, setQuantity] = useState('');
-    const [pieces, setPieces] = useState('');
+    const [itemName, setItemName] = useState();
+    const [quantity, setQuantity] = useState();
+    const [pieces, setPieces] = useState();
     const [total, setTotal] = useState(0);
     const [transactions, setTransactions] = useState([]);
+
+  
+
+  {/*  // Fetch transactions from backend
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            try {
+                const response = await axios.get('/api/transactions');
+                setTransactions(response.data);
+            } catch (err) {
+                console.error('Error fetching transactions:', err);
+            }
+        };
+        fetchTransactions();
+    }, []);
+*/}
 
 // Price mappings based on item and quantity
 const prices = {
@@ -59,18 +78,8 @@ const calculateTotal = () => {
     }
 };
 
-// Function to handle button click
-const handleCalculateClick = () => {
-    calculateTotal();
-};
 
-// Calculate total whenever itemName, quantity, or pieces change
-useEffect(() => {
-    calculateTotal();
-}, [itemName, quantity, pieces]);
-    
-
- // Function to handle sale transaction
+// Function to handle sale transaction
  const handleSell = () => {
     if(itemName && quantity && pieces && total > 0) {
         const transaction = {
@@ -87,47 +96,81 @@ useEffect(() => {
         setTotal(0);
     }
  };
+ //handlesubmit
+ const handleSubmitt = (e) => {
+    e.preventDefault()
+    axios.post('http://localhost:3001/dashboard', {itemName, quantity, pieces, total})
+    .then(result => {console.log(result)
+    })
+    .catch(err=> console.log(err))
+    if(itemName && quantity && pieces && total > 0) {
+        const transaction = {
+            itemName,
+            quantity,
+            pieces,
+            total
+        };
+        setTransactions([...transactions, transaction]);
+        //Reset form fields after sale
+        setItemName('');
+        setQuantity('');
+        setPieces('');
+        setTotal(0);
+    }
+}
+
+// Function to handle button click
+const handleCalculateClick = () => {
+    calculateTotal();
+};
+    
+
+// Calculate total whenever itemName, quantity, or pieces change
+useEffect(() => {
+    calculateTotal();
+}, [itemName, quantity, pieces]);
 
     return (
-        <div className="flex">
-            <div className="w-48 p-3 flex flex-col items-center gap-2">
-                <h1 className=" mb-2">
-                    NAVBAR
-                </h1>
-                <button className="border rounded p-2 text-red">
-                    testing
-                </button>
-                <Link to="/user" className=" btn w-100 rounded-0 text-decoration-none">
-                        User info
-                </Link>
-                <Link to="/items-in" className=" btn w-100 rounded-0 text-decoration-none">
-                        Items in
-                </Link>
-                <Link to="/items-sold" className=" btn w-100 rounded-0 text-decoration-none">
-                        Items Sold
-                </Link>
-                <Link to="/sales" className=" btn w-100 rounded-0 text-decoration-none">
-                        Sales
-                </Link>
-                <Link to="/suppliers" className=" btn w-100 rounded-0 text-decoration-none">
-                        Suppliers
-                </Link>
-                <Link to="/settings" className=" btn w-100 rounded-0 text-decoration-none">
-                        Settings
-                </Link>
-                <Link to="/" className=" btn rounded-0 text-decoration-none">
-                        Logout
-                </Link>
+        
+        <div className="flex bg-gray-200 px-2">
+            <div className="w-48 p-4 flex flex-col justify-center items-center gap-3 bg-blue-900 rounded-lg text-white h-screen shadow-lg">
+                        
+                         <Link to="/approved-sales" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Approved Sales
+                        </Link>
+                        <Link to="/stock-in" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Stock
+                        </Link>
+                    
+                        <Link to="/charts" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Charts/graphs
+                        </Link>
+
+                        <Link to="/suppliers" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Suppliers
+                        </Link>
+                        <Link to="/account" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Account
+                        </Link>
+                        <Link to="/settings" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Settings
+                        </Link>
+                        <Link to="/" className=" w-full text-center hover:bg-red-500 text-white py-2 rounded-md">
+                                Logout
+                        </Link>
             </div>
             <div className="flex flex-col p-3 gap-3 items-center h-screen bg-gray-200 w-full">
-                <h2 className="text-4xl font-bold leading-10">
-                    MORIAH dashboard
-                </h2> 
-                <div className="bg-white w-full h-72">
-                    <form action="">
-                        <div className="flex gap-2">
+                <div className="bg-white w-full h-48 flex rounded-lg justify-center items-center">
+                    <h2 className="text-4xl py-4 font-bold leading-10 text-blue-500">
+                        MORIAH Dashboard
+                    </h2>    
+                </div>
+
+                <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
+                    <form onSubmit={handleSubmitt}>
+                        <div className="flex gap-2 py-6">
                             <div className="">
-                            <label htmlFor="name" className="block text-blue-700 font-semibold mb-2">
+                            <label htmlFor="name" className="block text-center font-semibold mb-2">
                                     Item
                              </label>
                                 <select name="item" id="item" 
@@ -141,7 +184,7 @@ useEffect(() => {
                                 </select>
                             </div>
                             <div className="">
-                                <label htmlFor="name" className="block text-blue-700 font-semibold mb-2">
+                                <label htmlFor="name" className="block text-center font-semibold mb-2">
                                     Quantity
                                 </label>
                                 <select name="quantity" id="quantity" 
@@ -153,7 +196,7 @@ useEffect(() => {
                                 </select>
                             </div>
                             <div className="">
-                                <label htmlFor="name" className="block text-blue-700 font-semibold mb-2">
+                                <label htmlFor="name" className="block text-center font-semibold mb-2">
                                     Pieces
                                 </label>
                                 <input 
@@ -165,38 +208,34 @@ useEffect(() => {
                             </div>
                             
                             <div className="">
-                                <label htmlFor="name" className="block text-blue-700 font-semibold mb-2">
+                                <label htmlFor="name" className="block text-center font-semibold mb-2">
                                     Total
                                 </label>
                                 <input 
                                     type="text" 
-                                    value={`$${total}`}
+                                    value={`Ksh${total}`}
                                     readOnly
                                     className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
                                 />
                             </div> 
                             <div className="">
-                                <label htmlFor="name" className="block text-blue-700 font-semibold mb-2">
+                                <label htmlFor="name" className="block text-center font-semibold mb-2">
                                     Compute
                                 </label>
                                 <button 
-                                    type="button" 
+                                    type="submit" 
                                     className="w-full bg-red-500 text-white text-center py-2 rounded-md hover:bg-red-700 transition-colors"
-                                    onClick={handleSell}
+                                    
                                 >
                                     Sell
                                 </button>
                              </div> 
 
                         </div>
-                    </form>
-                    
-                </div>
-
-                <div className="bg-white w-full h-screen flex flex-col items-center">
+                    </form> 
                       {/* Transaction Table */}
                 
-                    <h1 className="text-xl font-bold mb-4">Sales Transactions</h1>
+                    <h1 className="text-xl font-bold py-3 text-center ">Sales Transactions</h1>
                     <table className="min-w-full bg-white border border-gray-200">
                         <thead>
                             <tr className="bg-gray-100">
@@ -221,7 +260,7 @@ useEffect(() => {
                     </div>
                 </div>
             </div>
-    )
+    );
 }
 
 export default Dashboard;

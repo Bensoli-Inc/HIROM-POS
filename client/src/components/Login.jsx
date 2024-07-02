@@ -50,11 +50,11 @@ function Login () {
                             Password
                         </label>
                         <input 
-                            type="text"
+                            type="password"
                             id="password"
                             placeholder="Enter your password"
                             autoComplete="off"
-                            name="name"
+                            name="password"
                             className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onChange={(e) => setPassword(e.target.value)}
                         />

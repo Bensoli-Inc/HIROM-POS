@@ -2,6 +2,7 @@ const express = require("express")
 const cors = require("cors")
 const mongoose = require('mongoose')
 const EmployeeModel = require('./models/Employee')
+const SaleModel = require('./models/Sale');
 
 const app = express()
 app.use(express.json())
@@ -32,6 +33,14 @@ app.post('/register', (req, res) => {
    .catch(err => res.json(err))
 })
 
+app.post('/dashboard', (req, res) => {
+   SaleModel.create(req.body)
+   .then(sales => res.json(sales))
+   .catch(err => res.json(err))
+})
+
+
 app.listen(3001, () => {
    console.log("server is running")
 })
+

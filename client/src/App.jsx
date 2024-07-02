@@ -4,8 +4,10 @@ import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Home from './components/Home'
-import ItemsIn from './components/Items-in'
-import ItemsSold from './components/Items-sold'
+import ApprovedSales from './components/Approved-sales'
+import Stockin from './components/Stock'
+
+
 
 function App() {
 
@@ -16,8 +18,9 @@ function App() {
         <Route path='/register' element={<Signup />}></Route>
         <Route path='/login' element={<Login />}></Route>
         <Route path='/dashboard' element={<Dashboard />}></Route>
-        <Route path='/items-in' element={<ItemsIn />}></Route>
-        <Route path='/items-sold' element={<ItemsSold />}></Route>
+        <Route path='/approved-sales' element={<ApprovedSales />}></Route>
+        <Route path='/stock-in' element={<Stockin />}></Route>
+        <Route path='/charts' element={<Stockin />}></Route>
       </Routes>
     </BrowserRouter>
   )
