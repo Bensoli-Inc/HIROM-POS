@@ -146,17 +146,7 @@ useEffect(() => {
     calculateTotal();
 }, [itemName, quantity, pieces]);
 
-// PropTypes validation
-ApprovedSales.propTypes = {
-    approvedTransactions: PropTypes.arrayOf(
-      PropTypes.shape({
-        itemName: PropTypes.string.isRequired,
-        quantity: PropTypes.string.isRequired,
-        pieces: PropTypes.number.isRequired,
-        total: PropTypes.number.isRequired,
-      })
-    ).isRequired,
-  };
+
   
 
     return (
