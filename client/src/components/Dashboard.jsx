@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import React from "react";
-import  { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import ApprovedSales from "./Approved-sales";
+import PropTypes from "prop-types";
 
 
 function Dashboard () {
@@ -12,21 +12,8 @@ function Dashboard () {
     const [total, setTotal] = useState(0);
     const [transactions, setTransactions] = useState([]);
 
-  
+ 
 
-  {/*  // Fetch transactions from backend
-    useEffect(() => {
-        const fetchTransactions = async () => {
-            try {
-                const response = await axios.get('/api/transactions');
-                setTransactions(response.data);
-            } catch (err) {
-                console.error('Error fetching transactions:', err);
-            }
-        };
-        fetchTransactions();
-    }, []);
-*/}
 
 // Price mappings based on item and quantity
 const prices = {
@@ -80,7 +67,7 @@ const calculateTotal = () => {
 
 
 // Function to handle sale transaction
- const handleSell = () => {
+ {/*const handleSell = () => {
     if(itemName && quantity && pieces && total > 0) {
         const transaction = {
             itemName,
@@ -96,39 +83,81 @@ const calculateTotal = () => {
         setTotal(0);
     }
  };
- //handlesubmit
+
+*/}
+
+ // Function to handle sale transaction submission
  const handleSubmitt = (e) => {
-    e.preventDefault()
-    axios.post('http://localhost:3001/dashboard', {itemName, quantity, pieces, total})
-    .then(result => {console.log(result)
-    })
-    .catch(err=> console.log(err))
-    if(itemName && quantity && pieces && total > 0) {
-        const transaction = {
-            itemName,
-            quantity,
-            pieces,
-            total
-        };
-        setTransactions([...transactions, transaction]);
-        //Reset form fields after sale
-        setItemName('');
-        setQuantity('');
-        setPieces('');
-        setTotal(0);
-    }
-}
+    e.preventDefault();
+    const timestamp = new Date().toISOString(); // Get current timestamp
+    axios.post('http://localhost:3001/dashboard', { itemName, quantity, pieces, total, timestamp })
+        .then(result => {
+            console.log(result);
+            const transaction = {
+                itemName,
+                quantity,
+                pieces,
+                total,
+                status: 'pending',
+                timestamp
+            };
+            // Add new transaction to the beginning of transactions array
+            setTransactions([transaction, ...transactions]);
+            // Reset form fields after sale
+            setItemName('');
+            setQuantity('');
+            setPieces('');
+            setTotal(0);
+            // Sort transactions to display the most recent on top
+            setTransactions(prevTransactions => prevTransactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
+        })
+        .catch(err => console.error(err));
+};
+
+// Function to handle transaction approval
+const handleApprove = (index) => {
+    const updatedTransactions = transactions.map((transaction, i) => {
+        if (i === index) {
+            return { ...transaction, status: 'approved' };
+        }
+        return transaction;
+    });
+    setTransactions(updatedTransactions);
+};
 
 // Function to handle button click
 const handleCalculateClick = () => {
     calculateTotal();
 };
     
+  // Function to handle deletion of transactions
+  const handleDelete = (index) => {
+    const updatedTransactions = transactions.filter((_, i) => i !== index);
+    setTransactions(updatedTransactions);
+};
+
+//Get approved transactions
+const approvedTransactions = transactions.filter(
+    (transaction) => transaction.status === "approved"
+  );
 
 // Calculate total whenever itemName, quantity, or pieces change
 useEffect(() => {
     calculateTotal();
 }, [itemName, quantity, pieces]);
+
+// PropTypes validation
+ApprovedSales.propTypes = {
+    approvedTransactions: PropTypes.arrayOf(
+      PropTypes.shape({
+        itemName: PropTypes.string.isRequired,
+        quantity: PropTypes.string.isRequired,
+        pieces: PropTypes.number.isRequired,
+        total: PropTypes.number.isRequired,
+      })
+    ).isRequired,
+  };
+  
 
     return (
         
@@ -173,7 +202,9 @@ useEffect(() => {
                             <label htmlFor="name" className="block text-center font-semibold mb-2">
                                     Item
                              </label>
-                                <select name="item" id="item" 
+                                <select name="item" 
+                                        id="item" 
+                                        value={itemName}
                                         onChange={handleItemChange}
                                         className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
                                     <option value="chrome">Chrome</option>
@@ -187,8 +218,10 @@ useEffect(() => {
                                 <label htmlFor="name" className="block text-center font-semibold mb-2">
                                     Quantity
                                 </label>
-                                <select name="quantity" id="quantity" 
-                                onChange={handleQuantityChange}
+                                <select name="quantity" 
+                                        value={quantity}
+                                        id="quantity" 
+                                        onChange={handleQuantityChange}
                                         className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
                                     <option value="1-litre">1 Litre</option>
                                     <option value="750-ml">750 ml</option>
@@ -201,6 +234,7 @@ useEffect(() => {
                                 </label>
                                 <input 
                                     type="number" 
+                                    value={pieces}
                                     placeholder="Total pcs"
                                     className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
                                     onChange={handlePiecesChange}
@@ -213,7 +247,7 @@ useEffect(() => {
                                 </label>
                                 <input 
                                     type="text" 
-                                    value={`Ksh${total}`}
+                                    value={total}
                                     readOnly
                                     className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
                                 />
@@ -243,6 +277,9 @@ useEffect(() => {
                                 <th className="border px-4 py-2">Quantity</th>
                                 <th className="border px-4 py-2">Pieces</th>
                                 <th className="border px-4 py-2">Total</th>
+                                <th className="border px-4 py-2">Status</th>
+                                <th className="border px-4 py-2">Approve</th>
+                                <th className="border px-4 py-2">Delete</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -251,7 +288,40 @@ useEffect(() => {
                                     <td className="border px-4 py-2">{transaction.itemName}</td>
                                     <td className="border px-4 py-2">{transaction.quantity}</td>
                                     <td className="border px-4 py-2">{transaction.pieces}</td>
-                                    <td className="border px-4 py-2">${transaction.total}</td>
+                                    <td className="border px-4 py-2">Ksh{transaction.total}</td>
+                                    <td className="border px-4 py-2">
+                                        <button
+                                            className={`px-2 py-1 rounded ${
+                                                transaction.status === 'approved' 
+                                                    ? 'bg-green-500 text-white py-1 px-2 rounded' 
+                                                    : 'bg-yellow-500 text-black px-1 py-1 rounded'
+                                            }`}
+                                            disabled={transaction.status === 'approved'}
+                                            
+                                        >
+                                            {transaction.status === 'approved' ? 'Approved✔' : 'Pending'}
+                                        </button>
+                                    </td>
+                                    <td className="border px-4 py-2">
+                                        {transaction.status === 'pending' && (
+                                            <button
+                                                className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
+                                                onClick={() => handleApprove(index)}
+                                            >
+                                                Approve
+                                            </button>
+                                        )}
+                                    </td>
+                                    <td className="border px-4 py-2">
+                                        {transaction.status === 'pending' && (
+                                            <button
+                                                onClick={() => handleDelete(index)}
+                                                className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700 transition-colors"
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -259,6 +329,9 @@ useEffect(() => {
                 
                     </div>
                 </div>
+
+                    <ApprovedSales approvedTransactions={approvedTransactions} />
+                
             </div>
     );
 }
