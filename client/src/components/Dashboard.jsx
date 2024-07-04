@@ -320,7 +320,7 @@ useEffect(() => {
                     </div>
                 </div>
 
-                    <ApprovedSales approvedTransactions={approvedTransactions} />
+                   
                 
             </div>
     );
