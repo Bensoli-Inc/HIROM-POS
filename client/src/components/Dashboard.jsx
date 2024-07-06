@@ -90,6 +90,7 @@ const calculateTotal = () => {
  const handleSubmitt = (e) => {
     e.preventDefault();
     const timestamp = new Date().toISOString(); // Get current timestamp
+    if (total>0)
     axios.post('http://localhost:3001/dashboard', { itemName, quantity, pieces, total, timestamp })
         .then(result => {
             console.log(result);
@@ -189,9 +190,9 @@ useEffect(() => {
                     <form onSubmit={handleSubmitt}>
                         <div className="flex gap-2 py-6">
                             <div className="">
-                            <label htmlFor="name" className="block text-center font-semibold mb-2">
-                                    Item
-                             </label>
+                                <label htmlFor="name" className="block text-center font-semibold mb-2">
+                                        Item
+                                </label>
                                 <select name="item" 
                                         id="item" 
                                         value={itemName}
@@ -320,7 +321,7 @@ useEffect(() => {
                     </div>
                 </div>
 
-                   
+                   {/* <ApprovedSales approvedTransactions={approvedTransactions} /> */}
                 
             </div>
     );

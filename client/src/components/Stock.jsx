@@ -35,6 +35,7 @@ function Stockin() {
                 <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
                     <h1 className="text-xl font-bold py-3 text-center ">All items supplied</h1>
                 </div>
+                
             </div>
         </div>
     );

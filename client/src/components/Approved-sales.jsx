@@ -20,8 +20,8 @@ const ApprovedSales = () => {
 
 
   return (
-    <div className="flex bg-gray-200 px-2">
-          <div className="w-48 p-4 flex flex-col justify-center items-center gap-3 bg-blue-900 h-full rounded-lg text-white shadow-lg">
+    <div className="flex bg-gray-200 h-screen px-2">
+          <div className="w-48 p-4 flex flex-col justify-center items-center gap-3 bg-blue-900 rounded-lg text-white shadow-lg">
                             
                             <Link to="/dashboard" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
                                     Dashboard
@@ -37,14 +37,14 @@ const ApprovedSales = () => {
                                     Charts/graphs
                             </Link>
                             <Link to="/settings" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                    Settings
+                                    Settingsss
                             </Link>
                           
                 </div>
           <div className="flex flex-col p-3 gap-3 items-center h-screen bg-gray-200 w-full">
           <div className="bg-white w-full h-72 flex flex-col rounded-lg justify-center items-center">
               <h2 className="text-4xl py-4 font-bold leading-10 text-blue-500">
-                  UPDATED stock
+                  APPROVED & PAID Sales
               </h2>                 
           </div> 
           <div  className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
@@ -68,7 +68,7 @@ const ApprovedSales = () => {
                       <td className="border px-4 py-2">{transaction.quantity}</td>
                       <td className="border px-4 py-2">{transaction.pieces}</td>
                       <td className="border px-4 py-2">Ksh{transaction.total}</td>
-                      <td className="border px-4 py-2">{transaction.timestamp}</td>
+                      <td className="border px-4 py-2">{transaction.date}</td>
                     </tr>
                   ))}
               </tbody>
