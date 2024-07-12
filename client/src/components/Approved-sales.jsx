@@ -21,26 +21,34 @@ const ApprovedSales = () => {
 
   return (
     <div className="flex bg-gray-200 h-screen px-2">
-          <div className="w-48 p-4 flex flex-col justify-center items-center gap-3 bg-blue-900 rounded-lg text-white shadow-lg">
-                            
-                            <Link to="/dashboard" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                    Dashboard
-                            </Link>
+          <div className="w-48 p-4 flex flex-col justify-center items-center gap-3 bg-blue-900 rounded-lg text-white h-screen shadow-lg">
                         
-                            <Link to="/approved-sales" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                    Approved Sales
-                            </Link>
-                            <Link to="/suppliers" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                    Suppliers
-                            </Link>
-                            <Link to="/charts" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                    Charts/graphs
-                            </Link>
-                            <Link to="/settings" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                    Settingsss
-                            </Link>
-                          
-                </div>
+                        <Link to="/sell-point" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Sell 
+                        </Link>
+                         <Link to="/approved-sales" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Approved Sales
+                        </Link>
+                        <Link to="/available-stock" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Available Stock
+                        </Link>
+                        <Link to="/receive-stock" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Receive Stock
+                        </Link>
+                        <Link to="/all-time-stock" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                AllTime Stock
+                        </Link>
+                        <Link to="/charts" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Charts/graphs
+                        </Link>
+
+                        <Link to="/suppliers" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Suppliers
+                        </Link>
+                        <Link to="/account" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
+                                Account
+                        </Link> 
+            </div>
           <div className="flex flex-col p-3 gap-3 items-center h-screen bg-gray-200 w-full">
           <div className="bg-white w-full h-72 flex flex-col rounded-lg justify-center items-center">
               <h2 className="text-4xl py-4 font-bold leading-10 text-blue-500">

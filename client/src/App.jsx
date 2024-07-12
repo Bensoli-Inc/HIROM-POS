@@ -1,13 +1,16 @@
 
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Signup from './components/Signup'
 import Login from './components/Login'
-import Dashboard from './components/Dashboard'
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
-import Home from './components/Home'
+import Sell from './components/Sell'
+import Account from './components/Account'
 import ApprovedSales from './components/Approved-sales'
-import Stockin from './components/Stock'
+import ReceiveStock from './components/Receive-stock'
+import AllTimeStock from './components/All-time-stock'
 import Charts from './components/Charts'
 import Suppliers from './components/Suppliers'
+import AvailableStock from './components/Realtime-stock'
+
 
 
 
@@ -16,14 +19,25 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<Home />}></Route>
+
+        <Route path='/account' element={<Account />}></Route>
+
+        {/* auth pages*/}
         <Route path='/register' element={<Signup />}></Route>
-        <Route path='/login' element={<Login />}></Route>
-        <Route path='/dashboard' element={<Dashboard />}></Route>
+        <Route path='/' element={<Login />}></Route>
+
+        {/* sales pages */}
+        <Route path='/sell-point' element={<Sell />}></Route>
         <Route path='/approved-sales' element={<ApprovedSales />}></Route>
-        <Route path='/stock-in' element={<Stockin />}></Route>
-        <Route path='/charts' element={<Charts />}></Route>
+
+        {/* stock pages */}
+        <Route path='/receive-stock' element={<ReceiveStock />}></Route>
+        <Route path='/all-time-stock' element={<AllTimeStock />}></Route>
+        <Route path='/available-stock' element={<AvailableStock />}></Route>
         <Route path='/suppliers' element={<Suppliers />}></Route>
+
+        {/* data analysis pages */}
+        <Route path='/charts' element={<Charts />}></Route>
       </Routes>
     </BrowserRouter>
   )

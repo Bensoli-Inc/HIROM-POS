@@ -3,6 +3,7 @@ const cors = require("cors")
 const mongoose = require('mongoose')
 const EmployeeModel = require('./models/Employee')
 const SaleModel = require('./models/Sale');
+const stockModel = require('./models/stock')
 
 const app = express()
 app.use(express.json())
@@ -48,6 +49,30 @@ app.get('/approved', async (req, res) => {
       res.status(500).json({ message: 'An error occurred', error: err });
    }
 });
+
+app.get('/stock', async (req,res)=>{
+   try{
+      const stock = await SaleModel.find().sort({ date: -1 });
+      res.status(200).json(stock);
+   } catch (err) {
+      res.status(500).json({message: 'error displaying stock', error: err});
+   }
+})
+
+app.get('/name'), async (req,res) => {
+   try{
+      const name = await EmployeeModel.find()
+      res.status(200).json(name);
+   } catch (err) {
+      res.status(500).json({message: 'error dislaying authorized name', error: err});
+   }
+}
+
+// app.post('/stock', (req,res)=>{
+//    stockModel.create(req.body)
+//    .then(stock => res.json(stock))
+//    .catch(err => res.json(err))
+// })
 
 app.listen(3001, () => {
    console.log("server is running")

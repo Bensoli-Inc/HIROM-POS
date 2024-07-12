@@ -15,7 +15,7 @@ function Login () {
         .then(result => {
             console.log(result)
             if(result.data === "Success") {
-                navigate('/dashboard')
+                navigate('/')
             }
         })
         .catch(err=> console.log(err))
@@ -63,13 +63,7 @@ function Login () {
                     <button type="submit" className=" w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
                         Login
                     </button>
-                    <p className="text-center text-gray-600 mt-4">
-                        New User?
-                    </p>
                 </form>
-                <Link to="/register" className="block text-center border border-blue-300 bg-blue-100 text-blue-700 py-2 rounded-md mt-4 hover:bg-blue-200 transition-colors">
-                        Sign Up
-                </Link>
             </div>
         </div>
     );
