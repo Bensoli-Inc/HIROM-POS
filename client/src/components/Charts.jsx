@@ -35,7 +35,7 @@ function Charts() {
             <div className="flex flex-col p-3 gap-3 items-center h-screen bg-gray-200 w-full">
                 <div className="bg-white w-full h-72 flex flex-col rounded-lg justify-center items-center">
                     <h2 className="text-4xl py-4 font-bold leading-10 text-blue-500">
-                        DATA ANALYSIS
+                        vvDATA ANALYSIS
                     </h2> 
                     
                 </div>
