@@ -176,7 +176,7 @@ useEffect(() => {
                                 Suppliers
                         </Link>
                         <Link to="/account" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                Account
+                                Accountt
                         </Link> 
             </div>
             <div className="flex flex-col p-3 gap-3 items-center h-screen bg-gray-200 w-full">

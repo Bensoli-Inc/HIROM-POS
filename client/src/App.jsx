@@ -6,6 +6,7 @@ import Sell from './components/Sell'
 import Account from './components/Account'
 import ApprovedSales from './components/Approved-sales'
 import ReceiveStock from './components/Receive-stock'
+import IncomingStock from './components/Receivve-stock'
 import AllTimeStock from './components/All-time-stock'
 import Charts from './components/Charts'
 import Suppliers from './components/Suppliers'
@@ -32,6 +33,7 @@ function App() {
 
         {/* stock pages */}
         <Route path='/receive-stock' element={<ReceiveStock />}></Route>
+        <Route path='/incoming-stock' element={<IncomingStock />}></Route>
         <Route path='/all-time-stock' element={<AllTimeStock />}></Route>
         <Route path='/available-stock' element={<AvailableStock />}></Route>
         <Route path='/suppliers' element={<Suppliers />}></Route>

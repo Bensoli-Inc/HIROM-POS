@@ -3,7 +3,7 @@ const cors = require("cors")
 const mongoose = require('mongoose')
 const EmployeeModel = require('./models/Employee')
 const SaleModel = require('./models/Sale');
-const stockModel = require('./models/stock')
+const stockModel = require('./models/Received-stock')
 
 const app = express()
 app.use(express.json())

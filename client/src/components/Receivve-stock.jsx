@@ -1,156 +1,18 @@
-import { Link } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 
-
-function ReceiveStock () {
+function IncomingStock () {
     const [itemName, setItemName] = useState();
     const [quantity, setQuantity] = useState();
     const [pieces, setPieces] = useState();
+    const [pricePerQuantity, setPricePerQuantity] = useState();
     const [total, setTotal] = useState(0);
-    const [transactions, setTransactions] = useState([]);
-
- 
-
-
-// Price mappings based on item and quantity
-const prices = {
-    chrome: {
-        '1-litre': 1500,
-        '750-ml': 800,
-        '300-ml': 300
-    },
-    vodka: {
-        '1-litre': 1600,
-        '750-ml': 900,
-        '300-ml': 400
-    },
-    'captain-morgan': {
-        '1-litre': 1400,
-        '750-ml': 600,
-        '300-ml': 200
-    },
-    'hunters-choice': {
-        '1-litre': 1800,
-        '750-ml': 900,
-        '300-ml': 500
-    },
-    gilbeys: {
-        '1-litre': 2000,
-        '750-ml': 1000,
-        '300-ml': 600
-    }
-};
-
-const handleItemChange = (e) => {
-    setItemName(e.target.value);
-};
-
-const handleQuantityChange = (e) => {
-    setQuantity(e.target.value);
-};
-
-const handlePiecesChange = (e) => {
-    setPieces(e.target.value);
-};
-
-// Function to calculate total based on selected item, quantity, and pieces
-const calculateTotal = () => {
-    if (itemName && quantity && pieces) {
-        const pricePerPiece = prices[itemName][quantity];
-        const totalPrice = pricePerPiece * parseFloat(pieces);
-        setTotal(totalPrice.toFixed(2)); // Round to 2 decimal places
-    }
-};
-
-
-// Function to handle sale transaction
- {/*const handleSell = () => {
-    if(itemName && quantity && pieces && total > 0) {
-        const transaction = {
-            itemName,
-            quantity,
-            pieces,
-            total
-        };
-        setTransactions([...transactions, transaction]);
-        //Reset form fields after sale
-        setItemName('');
-        setQuantity('');
-        setPieces('');
-        setTotal(0);
-    }
- };
-
-*/}
-
- // Function to handle sale transaction submission
- const handleSubmitt = (e) => {
-    e.preventDefault();
-    const timestamp = new Date().toISOString(); // Get current timestamp
-    if (total>0)
-    axios.post('http://localhost:3001/dashboard', { itemName, quantity, pieces, total, timestamp })
-        .then(result => {
-            console.log(result);
-            const transaction = {
-                itemName,
-                quantity,
-                pieces,
-                total,
-                status: 'pending',
-                timestamp
-            };
-            // Add new transaction to the beginning of transactions array
-            setTransactions([transaction, ...transactions]);
-            // Reset form fields after sale
-            setItemName('');
-            setQuantity('');
-            setPieces('');
-            setTotal(0);
-            // Sort transactions to display the most recent on top
-            setTransactions(prevTransactions => prevTransactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
-        })
-        .catch(err => console.error(err));
-};
-
-// Function to handle transaction approval
-const handleApprove = (index) => {
-    const updatedTransactions = transactions.map((transaction, i) => {
-        if (i === index) {
-            return { ...transaction, status: 'approved' };
-        }
-        return transaction;
-    });
-    setTransactions(updatedTransactions);
-};
-
-// Function to handle button click
-const handleCalculateClick = () => {
-    calculateTotal();
-};
-    
-  // Function to handle deletion of transactions
-  const handleDelete = (index) => {
-    const updatedTransactions = transactions.filter((_, i) => i !== index);
-    setTransactions(updatedTransactions);
-};
-
-//Get approved transactions
-const approvedTransactions = transactions.filter(
-    (transaction) => transaction.status === "approved"
-  );
-
-// Calculate total whenever itemName, quantity, or pieces change
-useEffect(() => {
-    calculateTotal();
-}, [itemName, quantity, pieces]);
-
-
-  
+    const [stock, setStock] = useState([]);
 
     return (
-        
         <div className="flex bg-gray-200 px-2">
             <div className="w-48 p-4 flex flex-col justify-center items-center gap-3 bg-blue-900 rounded-lg text-white h-screen shadow-lg">
                         
@@ -186,9 +48,8 @@ useEffect(() => {
                         Stock receiving Point
                     </h2>    
                 </div>
-
                 <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
-                    <form onSubmit={handleSubmitt}>
+                    <form >
                         <div className="flex gap-2 py-6">
                             <div className="">
                                 <label htmlFor="name" className="block text-center font-semibold mb-2">
@@ -197,7 +58,6 @@ useEffect(() => {
                                 <select name="item" 
                                         id="item" 
                                         value={itemName}
-                                        onChange={handleItemChange}
                                         className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
                                     <option value="chrome">Chrome</option>
                                     <option value="vodka">Vodka</option>
@@ -212,8 +72,7 @@ useEffect(() => {
                                 </label>
                                 <select name="quantity" 
                                         value={quantity}
-                                        id="quantity" 
-                                        onChange={handleQuantityChange}
+                                        id="quantity"                        
                                         className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
                                     <option value="1-litre">1 Litre</option>
                                     <option value="750-ml">750 ml</option>
@@ -229,10 +88,21 @@ useEffect(() => {
                                     value={pieces}
                                     placeholder="Total pcs"
                                     className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
-                                    onChange={handlePiecesChange}
+                                    
                                 />
                             </div>
-                            
+                            <div className="">
+                                <label htmlFor="name" className="block text-center font-semibold mb-2">
+                                    Price per Quantity
+                                </label>
+                                <input 
+                                    type="number" 
+                                    value={pricePerQuantity}
+                                    placeholder="Price per Piece"
+                                    className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                                    
+                                />
+                            </div>
                             <div className="">
                                 <label htmlFor="name" className="block text-center font-semibold mb-2">
                                     Total
@@ -275,57 +145,14 @@ useEffect(() => {
                             </tr>
                         </thead>
                         <tbody>
-                            {transactions.map((transaction, index) => (
-                                <tr key={index}>
-                                    <td className="border px-4 py-2">{transaction.itemName}</td>
-                                    <td className="border px-4 py-2">{transaction.quantity}</td>
-                                    <td className="border px-4 py-2">{transaction.pieces}</td>
-                                    <td className="border px-4 py-2">Ksh{transaction.total}</td>
-                                    <td className="border px-4 py-2">
-                                        <button
-                                            className={`px-2 py-1 rounded ${
-                                                transaction.status === 'approved' 
-                                                    ? 'bg-green-500 text-white py-1 px-2 rounded' 
-                                                    : 'bg-yellow-500 text-black px-1 py-1 rounded'
-                                            }`}
-                                            disabled={transaction.status === 'approved'}
-                                            
-                                        >
-                                            {transaction.status === 'approved' ? 'Approved✔' : 'Pending'}
-                                        </button>
-                                    </td>
-                                    <td className="border px-4 py-2">
-                                        {transaction.status === 'pending' && (
-                                            <button
-                                                className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
-                                                onClick={() => handleApprove(index)}
-                                            >
-                                                Approve
-                                            </button>
-                                        )}
-                                    </td>
-                                    <td className="border px-4 py-2">
-                                        {transaction.status === 'pending' && (
-                                            <button
-                                                onClick={() => handleDelete(index)}
-                                                className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700 transition-colors"
-                                            >
-                                                Delete
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
+                            
                         </tbody>
                     </table>
                 
                     </div>
-                </div>
-
-                   {/* <ApprovedSales approvedTransactions={approvedTransactions} /> */}
-                
             </div>
-    );
+        </div>
+    )
 }
 
-export default ReceiveStock;
+export default IncomingStock;
