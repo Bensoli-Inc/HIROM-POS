@@ -5,6 +5,7 @@ const SaleSchema = new mongoose.Schema({
     quantity: { type: String, required: true },
     pieces: { type: Number, required: true },
     total: { type: Number, required: true },
+    status: { type: String, default: 'Pending' },
     date: { type: Date, default: Date.now },
 });
 

@@ -89,7 +89,7 @@ const calculateTotal = () => {
     e.preventDefault();
     const timestamp = new Date().toISOString(); // Get current timestamp
     if (total>0)
-    axios.post('http://localhost:3001/dashboard', { itemName, quantity, pieces, total, timestamp })
+    axios.post('http://localhost:3001/sale', { itemName, quantity, pieces, total, timestamp })
         .then(result => {
             console.log(result);
             const transaction = {
@@ -112,17 +112,27 @@ const calculateTotal = () => {
         })
         .catch(err => console.error(err));
 };
+const fetchSaleData = async () => {
+    try {
+        const response = await axios.get('http://localhost:3001/sale');
+        setTransactions(response.data);
+    } catch (error) {
+        console.error('Error fetching sale data:', error);
+    }
+};
+
 
 // Function to handle transaction approval
-const handleApprove = (index) => {
-    const updatedTransactions = transactions.map((transaction, i) => {
-        if (i === index) {
-            return { ...transaction, status: 'approved' };
-        }
-        return transaction;
-    });
-    setTransactions(updatedTransactions);
+const handleApprove = async (id) => {
+    try {
+        const response = await axios.put(`http://localhost:3001/sale/approve/${id}`);
+        console.log(response.data);
+        fetchSaleData();
+    } catch (error) {
+        console.error('Error approving sale:', error);
+    }
 };
+
 
 // Function to handle button click
 const handleCalculateClick = () => {
@@ -130,19 +140,20 @@ const handleCalculateClick = () => {
 };
     
   // Function to handle deletion of transactions
-  const handleDelete = (index) => {
-    const updatedTransactions = transactions.filter((_, i) => i !== index);
-    setTransactions(updatedTransactions);
+const handleDelete = async (id) => {
+    try {
+        await axios.delete(`http://localhost:3001/sale/delete/${id}`);
+        fetchSaleData();
+    } catch (error) {
+        console.error('Error deleting stock:', error);
+    }
 };
 
-//Get approved transactions
-const approvedTransactions = transactions.filter(
-    (transaction) => transaction.status === "approved"
-  );
 
 // Calculate total whenever itemName, quantity, or pieces change
 useEffect(() => {
     calculateTotal();
+    fetchSaleData();
 }, [itemName, quantity, pieces]);
 
 
@@ -247,8 +258,8 @@ useEffect(() => {
                             </tr>
                         </thead>
                         <tbody>
-                            {transactions.map((transaction, index) => (
-                                <tr key={index}>
+                            {transactions.map((transaction) => (
+                                <tr key={transaction._id}>
                                     <td className="border px-4 py-2">{transaction.itemName}</td>
                                     <td className="border px-4 py-2">{transaction.quantity}</td>
                                     <td className="border px-4 py-2">{transaction.pieces}</td>
@@ -267,19 +278,19 @@ useEffect(() => {
                                         </button>
                                     </td>
                                     <td className="border px-4 py-2">
-                                        {transaction.status === 'pending' && (
+                                        {transaction.status === 'Pending' && (
                                             <button
                                                 className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
-                                                onClick={() => handleApprove(index)}
+                                                onClick={() => handleApprove(transaction._id)}
                                             >
                                                 Approve
                                             </button>
                                         )}
                                     </td>
                                     <td className="border px-4 py-2">
-                                        {transaction.status === 'pending' && (
+                                        {transaction.status === 'Pending' && (
                                             <button
-                                                onClick={() => handleDelete(index)}
+                                                onClick={() => handleDelete(transaction._id)}
                                                 className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700 transition-colors"
                                             >
                                                 Delete

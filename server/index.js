@@ -35,7 +35,7 @@ app.post('/register', (req, res) => {
    .catch(err => res.json(err))
 })
 
-app.post('/dashboard', (req, res) => {
+app.post('/sale', (req, res) => {
    SaleModel.create(req.body)
    .then(sales => res.json(sales))
    .catch(err => res.json(err))
@@ -47,6 +47,15 @@ app.post('/newstock', (req,res)=> {
    .catch(err => res.json(err))
 })
 
+ app.get('/finalstock', async (req,res) => {
+   try {
+      const stockData = await stockModel.find({ status: { $ne: 'Pending' } }).sort({ date: -1 });;
+      res.status(200).json(stockData);
+   } catch (err) {
+      res.status(500).json({ message: 'An error occurred updating stock', error: err });
+   }
+ })
+
  app.get('/newstock', async (req,res) => {
    try {
       const stockData = await stockModel.find().sort({ date: -1 });;
@@ -57,9 +66,18 @@ app.post('/newstock', (req,res)=> {
  })
 
 //fetching sales data from mongodb
-app.get('/approved', async (req, res) => {
+app.get('/sale', async (req, res) => {
    try {
       const sales = await SaleModel.find().sort({ date: -1 });;
+      res.status(200).json(sales);
+   } catch (err) {
+      res.status(500).json({ message: 'An error occurred', error: err });
+   }
+});
+
+app.get('/approvedsale', async (req, res) => {
+   try {
+      const sales = await SaleModel.find({status: {$ne: 'Pending'}}).sort({ date: -1 });;
       res.status(200).json(sales);
    } catch (err) {
       res.status(500).json({ message: 'An error occurred', error: err });
@@ -97,9 +115,21 @@ app.put('/newstock/approve/:id', (req, res) => {
        .catch(err => res.status(400).json({ error: err.message }));
 });
 
+app.put('/sale/approve/:id', (req, res) => {
+   SaleModel.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true })
+       .then(stock => res.json(stock))
+       .catch(err => res.status(400).json({ error: err.message }));
+});
+
 // Delete stock item
 app.delete('/newstock/:id', (req, res) => {
    stockModel.findByIdAndDelete(req.params.id)
+       .then(() => res.json({ message: 'stock deleted' }))
+       .catch(err => res.status(400).json({ error: err.message }));
+});
+
+app.delete('/sale/delete/:id', (req, res) => {
+   SaleModel.findByIdAndDelete(req.params.id)
        .then(() => res.json({ message: 'stock deleted' }))
        .catch(err => res.status(400).json({ error: err.message }));
 });

@@ -9,7 +9,7 @@ const ApprovedSales = () => {
   const [sales, setSales] = useState([]);
 
   const fetchData = async () => {
-    const data = await axios.get("http://localhost:3001/approved")
+    const data = await axios.get("http://localhost:3001/approvedsale")
     setSales(data.data)
   }
   
