@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
+import Navbar from "./Navbar";
 
 function IncomingStock () {
     const [itemName, setItemName] = useState();
@@ -12,36 +12,85 @@ function IncomingStock () {
     const [total, setTotal] = useState(0);
     const [stock, setStock] = useState([]);
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        //i ensure all fields are filled before submitting
+        if (!itemName || !quantity || !pieces || !pricePerQuantity) {
+            alert('Please fill all the fields.');
+            return
+        }
+
+        //calculate total before submitting
+        calculateTotal();
+        const formData = {itemName,quantity,pieces,pricePerQuantity,total};
+        try {
+            const response = await axios.post('http://localhost:3001/newstock', formData, {
+                headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        console.log(response.data);
+        fetchStockData();
+        //reset form details after successful submission
+        setItemName('');
+        setQuantity('');
+        setPieces(0);
+        setPricePerQuantity(0);
+        setTotal(0); //RESET TOTAL AFTER SUBMISSION
+
+        } catch (error) {
+            console.error('Error:', error)
+        }
+    };
+
+    const calculateTotal = () => {
+        if (itemName && quantity && pieces && pricePerQuantity){
+            const calculatedTotal = (pieces * pricePerQuantity).toFixed(2);
+            setTotal(calculatedTotal);
+        } else {
+            setTotal(0); //reset total to 0 if any field is empty
+        }
+    };
+
+    useEffect(() => calculateTotal());
+
+    const fetchStockData = async () => {
+        try {
+            const response = await axios.get('http://localhost:3001/newstock');
+            setStock(response.data);
+        } catch (error) {
+            console.error('Error fetching stock data:', error);
+        }
+    };
+
+    const approveStock = async (id) => {
+        try {
+            const response = await axios.put(`http://localhost:3001/newstock/approve/${id}`);
+            console.log(response.data);
+            fetchStockData();
+        } catch (error) {
+            console.error('Error approving stock:', error);
+        }
+    };
+
+    const deleteStock = async (id) => {
+        try {
+            await axios.delete(`http://localhost:3001/newstock/${id}`);
+            fetchStockData();
+        } catch (error) {
+            console.error('Error deleting stock:', error);
+        }
+    };
+
+    useEffect(() => {
+        calculateTotal;
+        fetchStockData();
+    }, []);
+
     return (
         <div className="flex bg-gray-200 px-2">
-            <div className="w-48 p-4 flex flex-col justify-center items-center gap-3 bg-blue-900 rounded-lg text-white h-screen shadow-lg">
-                        
-                        <Link to="/sell-point" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                Sell 
-                        </Link>
-                         <Link to="/approved-sales" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                Approved Sales
-                        </Link>
-                        <Link to="/available-stock" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                Available Stock
-                        </Link>
-                        <Link to="/receive-stock" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                Receive Stock
-                        </Link>
-                        <Link to="/all-time-stock" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                AllTime Stock
-                        </Link>
-                        <Link to="/charts" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                Charts/graphs
-                        </Link>
-
-                        <Link to="/suppliers" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                Suppliers
-                        </Link>
-                        <Link to="/account" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
-                                Account
-                        </Link> 
-            </div>
+            <Navbar />
             <div className="flex flex-col p-3 gap-3 items-center h-screen bg-gray-200 w-full">
                 <div className="bg-white w-full h-48 flex rounded-lg justify-center items-center">
                     <h2 className="text-4xl py-4 font-bold leading-10 text-blue-500">
@@ -49,7 +98,7 @@ function IncomingStock () {
                     </h2>    
                 </div>
                 <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
-                    <form >
+                    <form onSubmit={handleSubmit} >
                         <div className="flex gap-2 py-6">
                             <div className="">
                                 <label htmlFor="name" className="block text-center font-semibold mb-2">
@@ -58,7 +107,9 @@ function IncomingStock () {
                                 <select name="item" 
                                         id="item" 
                                         value={itemName}
+                                        onChange={(e) => setItemName(e.target.value)}
                                         className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
+                                    <option value="">Select</option>
                                     <option value="chrome">Chrome</option>
                                     <option value="vodka">Vodka</option>
                                     <option value="captain-morgan">Captain Morgan</option>
@@ -72,8 +123,10 @@ function IncomingStock () {
                                 </label>
                                 <select name="quantity" 
                                         value={quantity}
+                                        onChange={(e) => setQuantity(e.target.value)}
                                         id="quantity"                        
                                         className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
+                                    <option value="">Select</option>
                                     <option value="1-litre">1 Litre</option>
                                     <option value="750-ml">750 ml</option>
                                     <option value="300-ml">300 ml</option>
@@ -86,6 +139,7 @@ function IncomingStock () {
                                 <input 
                                     type="number" 
                                     value={pieces}
+                                    onChange={(e) => setPieces(e.target.value)}
                                     placeholder="Total pcs"
                                     className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
                                     
@@ -98,6 +152,7 @@ function IncomingStock () {
                                 <input 
                                     type="number" 
                                     value={pricePerQuantity}
+                                    onChange={(e) => setPricePerQuantity(e.target.value)}
                                     placeholder="Price per Piece"
                                     className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
                                     
@@ -109,13 +164,14 @@ function IncomingStock () {
                                 </label>
                                 <input 
                                     type="text" 
+                                    id="total"
                                     value={total}
                                     readOnly
                                     className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
                                 />
                             </div> 
                             <div className="">
-                                <label htmlFor="name" className="block text-center font-semibold mb-2">
+                                <label htmlFor="submit" className="block text-center font-semibold mb-2">
                                     Compute
                                 </label>
                                 <button 
@@ -145,7 +201,48 @@ function IncomingStock () {
                             </tr>
                         </thead>
                         <tbody>
-                            
+                                    {stock.map((item) => (
+                                    <tr key={item._id}>
+                                        <td className="border px-4 py-2">{item.itemName}</td>
+                                        <td className="border px-4 py-2">{item.quantity}</td>
+                                        <td className="border px-4 py-2">{item.pieces}</td>
+                                        <td className="border px-4 py-2">{item.total}</td>
+                                        <td className="border px-4 py-2">
+                                            <button
+                                                className={`px-2 py-1 rounded ${
+                                                    item.status === 'approved' 
+                                                        ? 'bg-green-500 text-white py-1 px-2 rounded' 
+                                                        : 'bg-yellow-500 text-black px-1 py-1 rounded'
+                                                }`}
+                                                disabled={item.status === 'approved'}
+                                                
+                                            >
+                                                {item.status === 'approved' ? 'Approved✔' : 'Pending'}
+                                            </button>
+                                        </td>
+                                        <td className="border px-4 py-2">
+                                                {item.status === 'Pending' && (
+                                                <button
+                                                    className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
+                                                    onClick={() => approveStock(item._id)}
+                                                >
+                                                    Approve
+                                                </button>
+                                                 )}
+                                        </td>
+                                        
+                                        <td className="border px-4 py-2">
+                                                {item.status === 'Pending' && (
+                                                <button
+                                                    onClick={() => deleteStock(item._id)}
+                                                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700 transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                                )}
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 

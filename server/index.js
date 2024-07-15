@@ -1,5 +1,6 @@
 const express = require("express")
 const cors = require("cors")
+const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const EmployeeModel = require('./models/Employee')
 const SaleModel = require('./models/Sale');
@@ -40,6 +41,21 @@ app.post('/dashboard', (req, res) => {
    .catch(err => res.json(err))
 })
 
+app.post('/newstock', (req,res)=> {
+   stockModel.create(req.body)
+   .then(stock => res.json(stock))
+   .catch(err => res.json(err))
+})
+
+ app.get('/newstock', async (req,res) => {
+   try {
+      const stockData = await stockModel.find().sort({ date: -1 });;
+      res.status(200).json(stockData);
+   } catch (err) {
+      res.status(500).json({ message: 'An error occurred updating stock', error: err });
+   }
+ })
+
 //fetching sales data from mongodb
 app.get('/approved', async (req, res) => {
    try {
@@ -73,6 +89,20 @@ app.get('/name'), async (req,res) => {
 //    .then(stock => res.json(stock))
 //    .catch(err => res.json(err))
 // })
+
+//approve stock item
+app.put('/newstock/approve/:id', (req, res) => {
+   stockModel.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true })
+       .then(stock => res.json(stock))
+       .catch(err => res.status(400).json({ error: err.message }));
+});
+
+// Delete stock item
+app.delete('/newstock/:id', (req, res) => {
+   stockModel.findByIdAndDelete(req.params.id)
+       .then(() => res.json({ message: 'stock deleted' }))
+       .catch(err => res.status(400).json({ error: err.message }));
+});
 
 app.listen(3001, () => {
    console.log("server is running")
