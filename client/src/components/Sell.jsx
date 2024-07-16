@@ -4,100 +4,82 @@ import axios from "axios";
 import Navbar from "./Navbar";
 
 function Sell () {
+    
     const [itemName, setItemName] = useState();
     const [quantity, setQuantity] = useState();
+    const [sellingPricePQ, setSellingPricePQ] = useState();
     const [pieces, setPieces] = useState();
     const [total, setTotal] = useState(0);
     const [transactions, setTransactions] = useState([]);
+    const [stock, setStock] = useState([]);
 
- 
+ useEffect(() => {
+    fetchStockData();
+    fetchSaleData();
+ })
 
+ const fetchStockData = async() => {
+    try {
+        const response = await axios.get('http://localhost:3001/incomingstock');
+        setStock(response.data);
+    } catch (error) {
+        console.error('Errorfetching stock data:', error);
+    }
+ };
 
-// Price mappings based on item and quantity
-const prices = {
-    chrome: {
-        '1-litre': 1500,
-        '750-ml': 800,
-        '300-ml': 300
-    },
-    vodka: {
-        '1-litre': 1600,
-        '750-ml': 900,
-        '300-ml': 400
-    },
-    'captain-morgan': {
-        '1-litre': 1400,
-        '750-ml': 600,
-        '300-ml': 200
-    },
-    'hunters-choice': {
-        '1-litre': 1800,
-        '750-ml': 900,
-        '300-ml': 500
-    },
-    gilbeys: {
-        '1-litre': 2000,
-        '750-ml': 1000,
-        '300-ml': 600
+ const fetchSaleData = async () => {
+    try {
+        const response = await axios.get('http://localhost:3001/sale');
+        setTransactions(response.data);
+    } catch (error) {
+        console.error('Error fetching sale data:', error);
     }
 };
 
 const handleItemChange = (e) => {
     setItemName(e.target.value);
+    const selectedStockItem = stock.find(item => item.itemName === e.target.value && item.quantity === quantity);
+    if (selectedStockItem) {
+      setSellingPricePQ(selectedStockItem.pricePerQuantity * 1.25);
+    }
 };
 
 const handleQuantityChange = (e) => {
     setQuantity(e.target.value);
+    const selectedStockItem = stock.find(item => item.itemName === itemName && item.quantity === e.target.value);
+    if (selectedStockItem) {
+      setSellingPricePQ(selectedStockItem.pricePerQuantity * 1.25);
+    }
 };
 
 const handlePiecesChange = (e) => {
     setPieces(e.target.value);
+    calculateTotal(e.target.value);
 };
 
-// Function to calculate total based on selected item, quantity, and pieces
-const calculateTotal = () => {
-    if (itemName && quantity && pieces) {
-        const pricePerPiece = prices[itemName][quantity];
-        const totalPrice = pricePerPiece * parseFloat(pieces);
-        setTotal(totalPrice.toFixed(2)); // Round to 2 decimal places
+const calculateTotal = (piecesValue) => {
+    if (sellingPricePQ && piecesValue) {
+      const totalPrice = sellingPricePQ * parseFloat(piecesValue);
+      setTotal(totalPrice.toFixed(2));
     }
 };
 
-
-// Function to handle sale transaction
- {/*const handleSell = () => {
-    if(itemName && quantity && pieces && total > 0) {
-        const transaction = {
-            itemName,
-            quantity,
-            pieces,
-            total
-        };
-        setTransactions([...transactions, transaction]);
-        //Reset form fields after sale
-        setItemName('');
-        setQuantity('');
-        setPieces('');
-        setTotal(0);
-    }
- };
-
-*/}
 
  // Function to handle sale transaction submission
  const handleSubmitt = (e) => {
     e.preventDefault();
     const timestamp = new Date().toISOString(); // Get current timestamp
     if (total>0)
-    axios.post('http://localhost:3001/sale', { itemName, quantity, pieces, total, timestamp })
+    axios.post('http://localhost:3001/sale', { itemName, quantity, sellingPricePQ, pieces, total, timestamp })
         .then(result => {
             console.log(result);
             const transaction = {
                 itemName,
                 quantity,
+                sellingPricePQ,
                 pieces,
                 total,
-                status: 'pending',
+                status: 'Pending',
                 timestamp
             };
             // Add new transaction to the beginning of transactions array
@@ -106,20 +88,14 @@ const calculateTotal = () => {
             setItemName('');
             setQuantity('');
             setPieces('');
+            setSellingPricePQ('');
             setTotal(0);
             // Sort transactions to display the most recent on top
             setTransactions(prevTransactions => prevTransactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
         })
         .catch(err => console.error(err));
 };
-const fetchSaleData = async () => {
-    try {
-        const response = await axios.get('http://localhost:3001/sale');
-        setTransactions(response.data);
-    } catch (error) {
-        console.error('Error fetching sale data:', error);
-    }
-};
+
 
 
 // Function to handle transaction approval
@@ -132,12 +108,6 @@ const handleApprove = async (id) => {
         console.error('Error approving sale:', error);
     }
 };
-
-
-// Function to handle button click
-const handleCalculateClick = () => {
-    calculateTotal();
-};
     
   // Function to handle deletion of transactions
 const handleDelete = async (id) => {
@@ -149,15 +119,6 @@ const handleDelete = async (id) => {
     }
 };
 
-
-// Calculate total whenever itemName, quantity, or pieces change
-useEffect(() => {
-    calculateTotal();
-    fetchSaleData();
-}, [itemName, quantity, pieces]);
-
-
-  
 
     return (
         
@@ -181,12 +142,15 @@ useEffect(() => {
                                         id="item" 
                                         value={itemName}
                                         onChange={handleItemChange}
-                                        className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
-                                    <option value="chrome">Chrome</option>
-                                    <option value="vodka">Vodka</option>
-                                    <option value="captain-morgan">Captain Morgan</option>
-                                    <option value="hunters-choice">Hunters Choice</option>
-                                    <option value="gilbeys">Gilbeys</option>
+                                        className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                                >
+                                    <option value="">Select Item</option>
+                                    {stock.map(item => (
+                                        <option key={item._id}
+                                                value={item.itemName}>
+                                                    {item.itemName}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="">
@@ -198,10 +162,27 @@ useEffect(() => {
                                         id="quantity" 
                                         onChange={handleQuantityChange}
                                         className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
-                                    <option value="1-litre">1 Litre</option>
-                                    <option value="750-ml">750 ml</option>
-                                    <option value="300-ml">300 ml</option>
+                                    <option value="">Select Quantity</option>
+                                    {stock
+                                        .filter(item => item.itemName === itemName)
+                                        .map(item => (
+                                            <option key={item._id}
+                                                    value={item.quantity}>
+                                                        {item.quantity}
+                                            </option>
+                                        ))}
                                 </select>
+                            </div>
+                            <div className="">
+                                <label htmlFor="name" className="block text-center font-semibold mb-2">
+                                    priceP/Q
+                                </label>
+                                <input type="number" 
+                                        value={sellingPricePQ}
+                                        id="pricePQ" 
+                                        readOnly
+                                        className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-300">
+                                </input>
                             </div>
                             <div className="">
                                 <label htmlFor="name" className="block text-center font-semibold mb-2">
@@ -250,6 +231,7 @@ useEffect(() => {
                             <tr className="bg-gray-100">
                                 <th className="border px-4 py-2">Item</th>
                                 <th className="border px-4 py-2">Quantity</th>
+                                <th className="border px-4 py-2">price P/Q</th>
                                 <th className="border px-4 py-2">Pieces</th>
                                 <th className="border px-4 py-2">Total</th>
                                 <th className="border px-4 py-2">Status</th>
@@ -262,6 +244,7 @@ useEffect(() => {
                                 <tr key={transaction._id}>
                                     <td className="border px-4 py-2">{transaction.itemName}</td>
                                     <td className="border px-4 py-2">{transaction.quantity}</td>
+                                    <td className="border px-4 py-2">{transaction.sellingPricePQ}</td>
                                     <td className="border px-4 py-2">{transaction.pieces}</td>
                                     <td className="border px-4 py-2">Ksh{transaction.total}</td>
                                     <td className="border px-4 py-2">

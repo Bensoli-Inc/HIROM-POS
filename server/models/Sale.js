@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const SaleSchema = new mongoose.Schema({
     itemName: { type: String, required: true },
     quantity: { type: String, required: true },
+    sellingPricePQ: {type: Number, required: true},
     pieces: { type: Number, required: true },
     total: { type: Number, required: true },
     status: { type: String, default: 'Pending' },

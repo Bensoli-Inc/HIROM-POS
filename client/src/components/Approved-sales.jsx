@@ -36,6 +36,7 @@ const ApprovedSales = () => {
                 <tr className="bg-gray-100">
                   <th className="border px-4 py-2">Item</th>
                   <th className="border px-4 py-2">Quantity</th>
+                  <th className="border px-4 py-2">Price P/Q</th>
                   <th className="border px-4 py-2">Pieces</th>
                   <th className="border px-4 py-2">Total</th>
                   <th className="border px-4 py-2">Date</th>
@@ -47,6 +48,7 @@ const ApprovedSales = () => {
                     <tr key={index}>
                       <td className="border px-4 py-2">{transaction.itemName}</td>
                       <td className="border px-4 py-2">{transaction.quantity}</td>
+                      <td className="border px-4 py-2">{transaction.sellingPricePQ}</td>
                       <td className="border px-4 py-2">{transaction.pieces}</td>
                       <td className="border px-4 py-2">Ksh{transaction.total}</td>
                       <td className="border px-4 py-2">{transaction.date}</td>
