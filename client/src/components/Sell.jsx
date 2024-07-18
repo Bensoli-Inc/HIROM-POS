@@ -14,16 +14,15 @@ function Sell () {
     const [stock, setStock] = useState([]);
 
  useEffect(() => {
-    fetchStockData();
-    fetchSaleData();
- })
+    fetchRealTimeStock();
+ }, []);
 
- const fetchStockData = async() => {
+ const fetchRealTimeStock = async() => {
     try {
-        const response = await axios.get('http://localhost:3001/incomingstock');
+        const response = await axios.get('http://localhost:3001/realtime-stock');
         setStock(response.data);
     } catch (error) {
-        console.error('Errorfetching stock data:', error);
+        console.error('Error fetching realtime stock:', error);
     }
  };
 
@@ -64,36 +63,37 @@ const calculateTotal = (piecesValue) => {
     }
 };
 
+useEffect(() => {
+    calculateTotal();
+}, []);
 
  // Function to handle sale transaction submission
- const handleSubmitt = (e) => {
+ const handleSubmitt = async (e) => {
     e.preventDefault();
-    const timestamp = new Date().toISOString(); // Get current timestamp
-    if (total>0)
-    axios.post('http://localhost:3001/sale', { itemName, quantity, sellingPricePQ, pieces, total, timestamp })
-        .then(result => {
-            console.log(result);
-            const transaction = {
-                itemName,
-                quantity,
-                sellingPricePQ,
-                pieces,
-                total,
-                status: 'Pending',
-                timestamp
-            };
-            // Add new transaction to the beginning of transactions array
-            setTransactions([transaction, ...transactions]);
-            // Reset form fields after sale
+
+    if (!itemName || !quantity || !pieces ) {
+        alert('Please fill all the fields.');
+        return
+    }
+
+    const stockItem = {itemName,quantity,sellingPricePQ,pieces,total};
+   try {
+        const response = await axios.post('http://localhost:3001/sale', stockItem, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        console.log(response.data);
+        fetchSaleData();
+           // Reset form fields after sale
             setItemName('');
             setQuantity('');
-            setPieces('');
-            setSellingPricePQ('');
+            setSellingPricePQ(0);
+            setPieces(0);
             setTotal(0);
-            // Sort transactions to display the most recent on top
-            setTransactions(prevTransactions => prevTransactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
-        })
-        .catch(err => console.error(err));
+        } catch (error) {
+                console.error({message: 'Error posting sale/updating realtime stock', error: error})
+        }      
 };
 
 

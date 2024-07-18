@@ -7,31 +7,42 @@ import Navbar from "./Navbar";
 function IncomingStock () {
     const [itemName, setItemName] = useState();
     const [quantity, setQuantity] = useState();
-    const [pieces, setPieces] = useState();
     const [pricePerQuantity, setPricePerQuantity] = useState();
+    const [pieces, setPieces] = useState();
     const [total, setTotal] = useState(0);
     const [stock, setStock] = useState([]);
+    const [realStock, setRealStock] = useState([]);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         //i ensure all fields are filled before submitting
-        if (!itemName || !quantity || !pieces || !pricePerQuantity) {
+        if (!itemName || !quantity || !pricePerQuantity || !pieces) {
             alert('Please fill all the fields.');
             return
         }
 
         //calculate total before submitting
         calculateTotal();
-        const formData = {itemName,quantity,pieces,pricePerQuantity,total};
+        const formData = {itemName,quantity,pricePerQuantity,pieces,total};
         try {
             const response = await axios.post('http://localhost:3001/incomingstock', formData, {
                 headers: {
                 'Content-Type': 'application/json',
             },
         });
-        console.log(response.data);
+        console.log('Response from stock model:', response.data);
+
+        // Post to the second model
+        const response2 = await axios.post('http://localhost:3001/realtime-stock', formData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        console.log('Response from realstock model:', response2.data);
         fetchStockData();
+        fetchRealData();
         //reset form details after successful submission
         setItemName('');
         setQuantity('');
@@ -44,6 +55,7 @@ function IncomingStock () {
         }
     };
 
+    
     const calculateTotal = () => {
         if (itemName && quantity && pieces && pricePerQuantity){
             const calculatedTotal = (pieces * pricePerQuantity).toFixed(2);
@@ -64,11 +76,26 @@ function IncomingStock () {
         }
     };
 
+    const fetchRealData = async () =>{
+        const data = await axios.get("http://localhost:3001/realtime-stock")
+        setRealStock(data.data)
+    }
+
     const approveStock = async (id) => {
         try {
             const response = await axios.put(`http://localhost:3001/newstock/approve/${id}`);
             console.log(response.data);
             fetchStockData();
+        } catch (error) {
+            console.error('Error approving stock:', error);
+        }
+    };
+
+    const approveRealStock = async (id) => {
+        try {
+            const response = await axios.put(`http://localhost:3001/realtime-stock/approve/${id}`);
+            console.log(response.data);
+            fetchRealData();
         } catch (error) {
             console.error('Error approving stock:', error);
         }
@@ -83,9 +110,19 @@ function IncomingStock () {
         }
     };
 
+    const deleteRealStock = async (id) => {
+        try {
+            await axios.delete(`http://localhost:3001/realtime-stock/${id}`);
+            fetchRealData();
+        } catch (error) {
+            console.error('Error deleting stock:', error);
+        }
+    };
+
     useEffect(() => {
         calculateTotal;
         fetchStockData();
+        fetchRealData();
     }, []);
 
     return (
@@ -186,67 +223,127 @@ function IncomingStock () {
                         </div>
                     </form> 
                       {/* Transaction Table */}
-                
-                    <h1 className="text-xl font-bold py-3 text-center ">Update your Stock</h1>
-                    <table className="min-w-full bg-white border border-gray-200">
-                        <thead>
-                            <tr className="bg-gray-100">
-                                <th className="border px-4 py-2">Item</th>
-                                <th className="border px-4 py-2">Quantity</th>
-                                <th className="border px-4 py-2">Pieces</th>
-                                <th className="border px-4 py-2">Total</th>
-                                <th className="border px-4 py-2">Status</th>
-                                <th className="border px-4 py-2">Approve</th>
-                                <th className="border px-4 py-2">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                                    {stock.map((item) => (
-                                    <tr key={item._id}>
-                                        <td className="border px-4 py-2">{item.itemName}</td>
-                                        <td className="border px-4 py-2">{item.quantity}</td>
-                                        <td className="border px-4 py-2">{item.pieces}</td>
-                                        <td className="border px-4 py-2">{item.total}</td>
-                                        <td className="border px-4 py-2">
-                                            <button
-                                                className={`px-2 py-1 rounded ${
-                                                    item.status === 'approved' 
-                                                        ? 'bg-green-500 text-white py-1 px-2 rounded' 
-                                                        : 'bg-yellow-500 text-black px-1 py-1 rounded'
-                                                }`}
-                                                disabled={item.status === 'approved'}
-                                                
-                                            >
-                                                {item.status === 'approved' ? 'Approved✔' : 'Pending'}
-                                            </button>
-                                        </td>
-                                        <td className="border px-4 py-2">
-                                                {item.status === 'Pending' && (
+                    <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
+                        <h1 className="text-xl font-bold py-3 text-center ">Update your Stock</h1>
+                        <table className="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr className="bg-gray-100">
+                                    <th className="border px-4 py-2">Item</th>
+                                    <th className="border px-4 py-2">Quantity</th>
+                                    <th className="border px-4 py-2">Pieces</th>
+                                    <th className="border px-4 py-2">Total</th>
+                                    <th className="border px-4 py-2">Status</th>
+                                    <th className="border px-4 py-2">Approve</th>
+                                    <th className="border px-4 py-2">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                        {stock.map((item) => (
+                                        <tr key={item._id}>
+                                            <td className="border px-4 py-2">{item.itemName}</td>
+                                            <td className="border px-4 py-2">{item.quantity}</td>
+                                            <td className="border px-4 py-2">{item.pieces}</td>
+                                            <td className="border px-4 py-2">{item.total}</td>
+                                            <td className="border px-4 py-2">
                                                 <button
-                                                    className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
-                                                    onClick={() => approveStock(item._id)}
+                                                    className={`px-2 py-1 rounded ${
+                                                        item.status === 'approved' 
+                                                            ? 'bg-green-500 text-white py-1 px-2 rounded' 
+                                                            : 'bg-yellow-500 text-black px-1 py-1 rounded'
+                                                    }`}
+                                                    disabled={item.status === 'approved'}
+                                                    
                                                 >
-                                                    Approve
+                                                    {item.status === 'approved' ? 'Approved✔' : 'Pending'}
                                                 </button>
-                                                 )}
-                                        </td>
-                                        
-                                        <td className="border px-4 py-2">
-                                                {item.status === 'Pending' && (
-                                                <button
-                                                    onClick={() => deleteStock(item._id)}
-                                                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700 transition-colors"
-                                                >
-                                                    Delete
-                                                </button>
-                                                )}
-                                        </td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </table>
-                
+                                            </td>
+                                            <td className="border px-4 py-2">
+                                                    {item.status === 'Pending' && (
+                                                    <button
+                                                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
+                                                        onClick={() => approveStock(item._id)}
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                    )}
+                                            </td>
+                                            
+                                            <td className="border px-4 py-2">
+                                                    {item.status === 'Pending' && (
+                                                    <button
+                                                        onClick={() => deleteStock(item._id)}
+                                                        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700 transition-colors"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                    )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
                     </div>
+                    <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
+                        <h1 className="text-xl font-bold py-3 text-center ">Update Current Realtime stock</h1>
+                        <table className="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr className="bg-gray-100">
+                                    <th className="border px-4 py-2">Item</th>
+                                    <th className="border px-4 py-2">Quantity</th>
+                                    <th className="border px-4 py-2">Pieces</th>
+                                    <th className="border px-4 py-2">Total</th>
+                                    <th className="border px-4 py-2">Status</th>
+                                    <th className="border px-4 py-2">Approve</th>
+                                    <th className="border px-4 py-2">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                        {realStock.map((item) => (
+                                        <tr key={item._id}>
+                                            <td className="border px-4 py-2">{item.itemName}</td>
+                                            <td className="border px-4 py-2">{item.quantity}</td>
+                                            <td className="border px-4 py-2">{item.pieces}</td>
+                                            <td className="border px-4 py-2">{item.total}</td>
+                                            <td className="border px-4 py-2">
+                                                <button
+                                                    className={`px-2 py-1 rounded ${
+                                                        item.status === 'approved' 
+                                                            ? 'bg-green-500 text-white py-1 px-2 rounded' 
+                                                            : 'bg-yellow-500 text-black px-1 py-1 rounded'
+                                                    }`}
+                                                    disabled={item.status === 'approved'}
+                                                    
+                                                >
+                                                    {item.status === 'approved' ? 'Approved✔' : 'Pending'}
+                                                </button>
+                                            </td>
+                                            <td className="border px-4 py-2">
+                                                    {item.status === 'Pending' && (
+                                                    <button
+                                                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
+                                                        onClick={() => approveRealStock(item._id)}
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                    )}
+                                            </td>
+                                            
+                                            <td className="border px-4 py-2">
+                                                    {item.status === 'Pending' && (
+                                                    <button
+                                                        onClick={() => deleteRealStock(item._id)}
+                                                        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700 transition-colors"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                    )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                </div> 
+                </div>
             </div>
         </div>
     )

@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const EmployeeModel = require('./models/Employee')
 const SaleModel = require('./models/Sale');
 const stockModel = require('./models/Received-stock')
+const RealTimeStockModel = require('./models/Real-Time-stock')
 
 const app = express()
 app.use(express.json())
@@ -37,20 +38,54 @@ app.post('/register', (req, res) => {
 
 
 //STOCK APIS
+ app.post('/incomingstock', async (req, res) => {
+   console.log('Incoming stock request body:', req.body);
+   try {
+       const stock = await stockModel.create(req.body);
+       res.status(201).json(stock);
+   } catch (err) {
+      console.error('Error creating incoming stock:', err.message);
+       res.status(400).json({ error: err.message });
+   }
+});
+
+app.post('/realtime-stock', async (req, res) => {
+   console.log('Realtime stock request body:', req.body);
+   try {
+       const realStock = await RealTimeStockModel.create(req.body);
+       res.status(201).json(realStock);
+   } catch (err) {
+      console.error('Error creating realtime stock:', err.message);
+       res.status(400).json({ error: err.message });
+   }
+});
+
 app.get('/incomingstock', async (req,res) => {
    try {
       const stock = await stockModel.find().sort({ date: -1 });;
       res.status(200).json(stock);
    } catch (err) {
-      res.status(500).json({ message: 'error occurred displaying', error: err });
+      res.status(500).json({ message: 'error occurred getting incoming stock', error: err });
    }
  })
 
-app.post('/incomingstock', (req,res)=> {
-   stockModel.create(req.body)
-   .then(stock => res.json(stock))
-   .catch(err => res.json(err))
-})
+app.get('/realtime-stock', async (req,res) => {
+   try {
+      const realTimeStock = await RealTimeStockModel.find().sort({ date: -1 });;
+      res.status(200).json(realTimeStock);
+   } catch (err) {
+      res.status(500).json({ message: 'error occurred displaying realtime', error: err });
+   }
+ })
+
+ app.get('/final-realtime-stock', async (req,res) => {
+   try {
+      const realTimeStock = await RealTimeStockModel.find({ status: { $ne: 'Pending' } }).sort({ date: -1 });;
+      res.status(200).json(realTimeStock);
+   } catch (err) {
+      res.status(500).json({ message: 'error occurred displaying realtime', error: err });
+   }
+ })
 
  app.get('/finalstock', async (req,res) => {
    try {
@@ -75,11 +110,30 @@ app.delete('/newstock/:id', (req, res) => {
        .catch(err => res.status(400).json({ error: err.message }));
 });
 
+app.put('/realtime-stock/approve/:id', (req, res) => {
+   RealTimeStockModel.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true })
+       .then(stock => res.json(stock))
+       .catch(err => res.status(400).json({ error: err.message }));
+});
+ 
+app.delete('/realtime-stock/:id', (req, res) => {
+   RealTimeStockModel.findByIdAndDelete(req.params.id)
+       .then(() => res.json({ message: 'stock deleted' }))
+       .catch(err => res.status(400).json({ error: err.message }));
+});
+
+//REAL-TIME-STOCK APIs
+// app.post('/add-stock', async (req,res) => {
+//    try{
+//       const newStock = await stockModel.create(req.body);
+//       await RealTimeStockModel.create(req.body)
+//    }
+// })
+
 //SALE APIs
 app.post('/sale', async (req, res) => {
-  const {itemName, quantity, pieces} = req.body
   try {
-   const stockItem = await stockModel.findOne({itemName, quantity})
+   const stockItem = await RealTimeStockModel.findOne({itemName, quantity, pieces})
 
    if(!stockItem) {
       return res.status(404).json({message: 'Item not found in stock'})
@@ -87,19 +141,7 @@ app.post('/sale', async (req, res) => {
    if(stockItem.pieces<pieces) {
       return res.status(400).json({message: 'Item out of stock'})
    }
-
-   const sellingPricePQ = stockItem.pricePerQuantity * 1.25;
-   const total = sellingPricePQ * pieces;
-
-   const newSale = await SaleModel.create({
-      itemName,
-      quantity,
-      pieces,
-      sellingPricePQ,
-      total,
-      status: 'Pending',
-      date: new Date(),
-   });
+      const newSale = await SaleModel.create(req.body);
 
    stockItem.pieces -= pieces;
    await stockItem.save();

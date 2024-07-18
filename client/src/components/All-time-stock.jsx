@@ -27,14 +27,14 @@ function AllTimeStock() {
                     </h2>  
                 </div>
                 <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
-                    <h1 className="text-xl font-bold py-3 text-center ">All items supplied</h1>
+                    <h1 className="text-xl font-bold py-3 text-center ">All items ever supplied</h1>
                     <table className="min-w-full bg-white border border-gray-200">
                         <thead>
                             <tr className="bg-gray-100">
                             <th className="border px-4 py-2">Item</th>
                             <th className="border px-4 py-2">Quantity</th>
                             <th className="border px-4 py-2">Pieces</th>
-                            <th className="border px-4 py-2">Price/P/Q</th>
+                            <th className="border px-4 py-2">Buying Price/P/Q</th>
                             <th className="border px-4 py-2">Total</th>
                             <th className="border px-4 py-2">Date</th>
                             </tr>
