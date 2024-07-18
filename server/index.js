@@ -139,6 +139,12 @@ app.delete('/realtime-stock/:id', (req, res) => {
        .catch(err => res.status(400).json({ error: err.message }));
 });
 
+app.delete('/realtime-finished-stock/:id', (req, res) => {
+   RealTimeStockModel.findByIdAndDelete(req.params.id)
+       .then(() => res.json({ message: 'stock deleted' }))
+       .catch(err => res.status(400).json({ error: err.message }));
+});
+
 //REAL-TIME-STOCK APIs
 // app.post('/add-stock', async (req,res) => {
 //    try{
@@ -222,6 +228,14 @@ app.delete('/sale/delete/:id', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
    }    
 });
+
+// const itemsToRemove = await RealTimeStockModel.find({ pieces: { $lt: 1 } });
+
+// Route to clean up stock items with pieces less than 1
+app.delete('/realtime-stock/cleanup', async (req, res) => {
+   
+});
+
 
 app.get('/name'), async (req,res) => {
    try{
