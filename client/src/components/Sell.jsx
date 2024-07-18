@@ -12,19 +12,36 @@ function Sell () {
     const [total, setTotal] = useState(0);
     const [transactions, setTransactions] = useState([]);
     const [stock, setStock] = useState([]);
+    const [error, setError] = useState('');
 
- useEffect(() => {
-    fetchRealTimeStock();
- }, []);
+
 
  const fetchRealTimeStock = async() => {
     try {
-        const response = await axios.get('http://localhost:3001/realtime-stock');
+        const response = await axios.get('http://localhost:3001/final-realtime-stock');
         setStock(response.data);
     } catch (error) {
         console.error('Error fetching realtime stock:', error);
     }
  };
+ const fetchAndUpdateStock = async (itemName, quantity) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/realstock/${itemName}/${quantity}`);
+      const updatedStock = response.data; // Assuming your endpoint returns updated stock data
+
+      setStock((prevStock) => {
+        const index = prevStock.findIndex(item => item.itemName === updatedStock.itemName);
+        if (index !== -1) {
+            prevStock[index].pieces = updatedStock.pieces;
+          return [...prevStock];
+        } else {
+          return [...prevStock, updatedStock];
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching stock:', error);
+    }
+  };
 
  const fetchSaleData = async () => {
     try {
@@ -65,16 +82,21 @@ const calculateTotal = (piecesValue) => {
 
 useEffect(() => {
     calculateTotal();
+    fetchRealTimeStock();
+    fetchSaleData();
 }, []);
 
  // Function to handle sale transaction submission
  const handleSubmitt = async (e) => {
     e.preventDefault();
+    setError(''); // Clear any previous error messages
 
-    if (!itemName || !quantity || !pieces ) {
-        alert('Please fill all the fields.');
-        return
-    }
+    // if (!itemName || !quantity || !pieces ) {
+    //     alert('Please fill all the fields.');
+    //     return
+    // }
+
+    calculateTotal();
 
     const stockItem = {itemName,quantity,sellingPricePQ,pieces,total};
    try {
@@ -85,15 +107,20 @@ useEffect(() => {
         });
         console.log(response.data);
         fetchSaleData();
+        fetchRealTimeStock();
            // Reset form fields after sale
             setItemName('');
             setQuantity('');
+            setPieces('');
             setSellingPricePQ(0);
-            setPieces(0);
             setTotal(0);
-        } catch (error) {
-                console.error({message: 'Error posting sale/updating realtime stock', error: error})
-        }      
+        } catch (err) {
+            if (err.response && err.response.data) {
+                setError(err.response.data.message);
+              } else {
+                setError('An unexpected error occurred');
+              }
+          }      
 };
 
 
@@ -110,14 +137,18 @@ const handleApprove = async (id) => {
 };
     
   // Function to handle deletion of transactions
-const handleDelete = async (id) => {
+  const handleDelete = async (id, itemName, quantity) => {
     try {
-        await axios.delete(`http://localhost:3001/sale/delete/${id}`);
-        fetchSaleData();
+      await axios.delete(`http://localhost:3001/sale/delete/${id}`);
+      
+      // Fetch and update stock state after deletion
+      await fetchAndUpdateStock(itemName, quantity);
+
+      fetchSaleData(); // Fetching updated sale data after deletion
     } catch (error) {
-        console.error('Error deleting stock:', error);
+      console.error('Error deleting sale:', error);
     }
-};
+  };
 
 
     return (
@@ -223,6 +254,12 @@ const handleDelete = async (id) => {
 
                         </div>
                     </form> 
+                    {error && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
+                            <strong className="font-bold">Error:</strong>
+                            <span className="block sm:inline"> {error}</span>
+                        </div>
+                    )}
                       {/* Transaction Table */}
                 
                     <h1 className="text-xl font-bold py-3 text-center ">Sales Transactions</h1>
@@ -273,7 +310,7 @@ const handleDelete = async (id) => {
                                     <td className="border px-4 py-2">
                                         {transaction.status === 'Pending' && (
                                             <button
-                                                onClick={() => handleDelete(transaction._id)}
+                                                onClick={() => handleDelete(transaction._id, transaction.itemName, transaction.quantity)}
                                                 className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700 transition-colors"
                                             >
                                                 Delete

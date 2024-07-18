@@ -87,6 +87,23 @@ app.get('/realtime-stock', async (req,res) => {
    }
  })
 
+ app.get('/realstock/:itemName/:quantity', async (req, res) => {
+   const {itemName, quantity} = req.params;
+ 
+   try {
+     const stockItem = await RealTimeStockModel.findOne({ itemName, quantity });
+ 
+     if (!stockItem) {
+       return res.status(404).json({ message: `Stock item ${itemName} with quantity ${quantity} not found` });
+     }
+ 
+     res.json(stockItem); // Return the found stock item as JSON response
+   } catch (err) {
+     console.error('Error fetching stock:', err);
+     res.status(500).json({ message: 'Internal server error' });
+   }
+ });
+
  app.get('/finalstock', async (req,res) => {
    try {
       const stockData = await stockModel.find({ status: { $ne: 'Pending' } }).sort({ date: -1 });;
@@ -132,15 +149,19 @@ app.delete('/realtime-stock/:id', (req, res) => {
 
 //SALE APIs
 app.post('/sale', async (req, res) => {
+   const { itemName, quantity, pieces } = req.body;
+
   try {
-   const stockItem = await RealTimeStockModel.findOne({itemName, quantity, pieces})
+   const stockItem = await RealTimeStockModel.findOne({itemName, quantity})
 
    if(!stockItem) {
       return res.status(404).json({message: 'Item not found in stock'})
    }
    if(stockItem.pieces<pieces) {
-      return res.status(400).json({message: 'Item out of stock'})
+      return res.status(400).json({message: `Only ${stockItem.pieces} pieces of ${stockItem.quantity} ${stockItem.itemName} remaining in stock`})
    }
+
+
       const newSale = await SaleModel.create(req.body);
 
    stockItem.pieces -= pieces;
@@ -150,7 +171,7 @@ app.post('/sale', async (req, res) => {
   } catch (err) {
    res.status(500).json({message: 'error on post /sale api', error: err});
   }
-})
+});
 
 app.get('/sale', async (req, res) => {
    try {
@@ -177,10 +198,29 @@ app.put('/sale/approve/:id', (req, res) => {
 });
 
 
-app.delete('/sale/delete/:id', (req, res) => {
-   SaleModel.findByIdAndDelete(req.params.id)
-       .then(() => res.json({ message: 'stock deleted' }))
-       .catch(err => res.status(400).json({ error: err.message }));
+app.delete('/sale/delete/:id', async (req, res) => {
+   const { id } = req.params;
+
+   try {
+      const deletedSale = await SaleModel.findByIdAndDelete(id);
+
+      if (!deletedSale) {
+         return res.status(404).json({ message: 'Sale not found' });
+       }
+       //updating realtime stock model
+       const { itemName, pieces } = deletedSale;
+    const stockItem = await RealTimeStockModel.findOne({ itemName: deletedSale.itemName, quantity: deletedSale.quantity });
+
+    if (stockItem) {
+      stockItem.pieces += pieces;
+      await stockItem.save();
+    }
+    res.json({ message: 'Sale deleted and stock updated'  });
+
+   }  catch (err) {
+      console.error('Error deleting sale:', err);
+    res.status(500).json({ message: 'Internal server error' });
+   }    
 });
 
 app.get('/name'), async (req,res) => {
