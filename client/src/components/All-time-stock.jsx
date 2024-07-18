@@ -25,7 +25,7 @@ function AllTimeStock() {
                     </h2>  
                 </div>
                 <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
-                    <h1 className="text-xl font-bold py-3 text-center ">All items ever supplied</h1>
+                    <h1 className="text-xl font-bold py-3 text-center ">All itemss ever supplied</h1>
                     <table className="min-w-full bg-white border border-gray-200">
                         <thead>
                             <tr className="bg-gray-100">
