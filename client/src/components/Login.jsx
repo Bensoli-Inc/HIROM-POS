@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom'
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -19,11 +21,37 @@ const Login = ({ onLogin }) => {
         localStorage.setItem('username', username); 
 
         setError('');
-        onLogin();
+        toast.success('Login successful!', {
+            position: 'top-right',
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            // className: 'bg-green text-whit'
+          });
+        
+          // Delaying the navigation to ensure the toast message is visible
+    setTimeout(() => {
         navigate('/account');
+      }, 2000);
+
+      onLogin();
+
     } catch (err) {
         console.error("Error during login:", err); // Log the error
         setError(err.response?.data?.message || 'An unexpected error occurred. Please try again.');
+      toast.error(err.response?.data?.message || 'An error occurred. Please try again.', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        className: 'bg-red-500 text-white'
+      });
     }
 };
 
@@ -57,7 +85,6 @@ const Login = ({ onLogin }) => {
                     required
                     />
                 </div>
-                {error && <p className="text-red-500 text-xs italic">{error}</p>}
                 <div className="flex items-center justify-between">
                     <button
                         type="submit"
@@ -67,6 +94,7 @@ const Login = ({ onLogin }) => {
                     </button>
                 </div>
             </form>
+            <ToastContainer />
         </div>
     </div>
   );

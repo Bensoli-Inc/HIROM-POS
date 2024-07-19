@@ -12,7 +12,7 @@ const jwt= require('jsonwebtoken')
 const secretKey = process.env.SECRET_KEY; 
 const bcrypt = require('bcryptjs');
 const { authMiddleware, roleMiddleware } = require('./middleware/auth');
-
+const founderSecretKey = process.env.FOUNDER_SECRET_KEY
 
 const app = express()
 app.use(express.json())
@@ -20,7 +20,6 @@ app.use(cors())
 
 mongoose.connect("mongodb://127.0.0.1:27017/employee");
 console.log('Secret Key:', process.env.SECRET_KEY);
-
 //AUTH APIS
 //reg api
 app.post('/register', async (req, res) => {
@@ -38,25 +37,72 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
    try {
       const {username, password} = req.body;
-      const user = await UserModel.findOne({username});
-      if (!user || !await bcrypt.compare(password, user.password)) {
-         return res.status(400).json({message: 'invalid username or password'});
+
+      const normalizedUsername = username.toLowerCase();
+
+      const user = await UserModel.findOne({username: normalizedUsername});
+      if (!user) {
+         return res.status(400).json({message: 'User does not exist'});
+      }
+      if (!await bcrypt.compare(password, user.password)) {
+         return res.status(400).json({message: 'invalid password'});
       }
       if (!user.isActive) {
          return res.status(403).json({message: 'Account is deactivated. Contact admin.'});
       }
       const token = jwt.sign({_id: user._id, role: user.role}, secretKey, {expiresIn: '1h'});
+      console.log('Generated Token:', token); // Log generated token
+
       res.json({ token, message: `Welcome ${username}`});
    } catch (err) {
       res.status(500).json({ message: 'Error logging in', error: err.message });
    }
 });
 
-// Create Admin api (Only Founder)
-app.post('create-admin', authMiddleware, roleMiddleware(['founder']), async (req, res) => {
+//founder registration api
+app.post('/founder-register', async (req, res) => {
    try {
-      const {username, email, password, institutionName} = req.body;
-      const admin = newUser({username, email, password, institutionName, role: 'admin'});
+     const { founderKey, username, email, password, institutionName, role } = req.body;
+ 
+     // Check if the founderKey matches the predefined secret key
+     if (founderKey !== founderSecretKey) {
+       return res.status(403).json({ message: 'lol hacker. Access denied! Invalid founder key.' });
+     }
+
+     if (role !== 'founder') {
+       return res.status(400).json({ message: 'Invalid role. Only founder can register through this route.' });
+     } 
+     
+     const normalizedUsername = username.toLowerCase();
+     const user = new UserModel({ username: normalizedUsername, email, password, institutionName, role });
+     await user.save();
+     res.status(201).json({ message: 'Founder registered successfully' });
+   } catch (err) {
+      console.error('Error during registration:', err); 
+
+       // Checking if the error is a MongoDB duplicate key error
+    if (err.code === 11000) {
+      if (err.message.includes('email')) {
+        return res.status(400).json({ message: 'An account with this email already exists.' });
+      }
+   
+      if (err.message.includes('username')) {
+        return res.status(400).json({ message: 'An account with this username already exists.' });
+      }
+    }
+    // General error handling
+    res.status(400).json({ message: 'Error registering founder', error: err.message });
+   }
+ });
+
+
+// Create Admin api (Only Founder)
+app.post('/create-admin', authMiddleware, roleMiddleware('founder'), async (req, res) => {
+   try {
+      const {username, email, password, institutionName, role} = req.body;
+      
+      const normalizedUsername = username.toLowerCase();
+      const admin = new UserModel({ username: normalizedUsername, email, password, institutionName, role });
       await admin.save();
       res.status(201).json({message: 'Admin created successfully'});
    } catch (err) {
@@ -64,6 +110,15 @@ app.post('create-admin', authMiddleware, roleMiddleware(['founder']), async (req
    }
 });
 
+app.get('/admins', authMiddleware, roleMiddleware(['founder']), async (req, res) => {
+   try {
+     const admins = await UserModel.find({ role: 'admin' });
+     res.json({ admins });
+   } catch (err) {
+     res.status(500).json({ message: 'Error fetching admins', error: err.message });
+   }
+ });
+ 
 // Creating Staff Route (Only Admin)
 app.post('/create-staff', authMiddleware, roleMiddleware(['admin']), async (req,res) => {
    try {
@@ -94,9 +149,9 @@ app.put('/deactivate/:id', authMiddleware, async (req, res) => {
 });
 
 // Reactivating Account (Founder/Admin for Admin/Staff)
-app.put('reactivate/:id', authMiddleware, async (req, res) => {
+app.put('/reactivate/:id', authMiddleware, async (req, res) => {
    try {
-      const user = UserModel.findById(req.params.id);
+      const user = await UserModel.findById(req.params.id);
       if (!user) return res.status(404).json({message: 'User not found'})
       if ((req.user.role === 'admin' && user.role !== 'staff') || req.user.role === 'staff') {
          return res.status(403).json({ message: 'Access denied. You do not have permission to perform this action.' });
@@ -113,10 +168,16 @@ app.put('reactivate/:id', authMiddleware, async (req, res) => {
 app.put('/change-password', authMiddleware, async (req, res) => {
    try {
      const { oldPassword, newPassword } = req.body;
-     const user = await User.findById(req.user._id);
+     const user = await UserModel.findById(req.user._id);
      if (!user || !await bcrypt.compare(oldPassword, user.password)) {
        return res.status(400).json({ message: 'Old password is incorrect' });
      }
+
+      // Checking if the new password is the same as the old password
+    const isNewPasswordSame = await bcrypt.compare(newPassword, user.password);
+    if (isNewPasswordSame) {
+      return res.status(400).json({ message: 'New password cannot be the same as the old password' });
+    }
      user.password = newPassword;
      await user.save();
      res.json({ message: 'Password changed successfully' });
@@ -125,6 +186,26 @@ app.put('/change-password', authMiddleware, async (req, res) => {
    }
  });
 
+
+
+ // Assuming you have already set up UserModel and authMiddleware
+app.get('/user-data', authMiddleware, async (req, res) => {
+   try {
+     const user = await UserModel.findById(req.user._id);
+     if (!user) return res.status(404).json({ message: 'User not found' });
+ 
+     // Return only necessary fields
+     res.json({
+       username: user.username,
+       email: user.email,
+       role: user.role
+     });
+   } catch (err) {
+     res.status(500).json({ message: 'Error fetching user data', error: err.message });
+   }
+ });
+ 
+ 
 //STOCK APIS
  app.post('/incomingstock', async (req, res) => {
    console.log('Incoming stock request body:', req.body);

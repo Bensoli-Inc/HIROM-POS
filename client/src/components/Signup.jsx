@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = ({ role }) => {
   const [username, setUsername] = useState('');
@@ -8,6 +9,8 @@ const Signup = ({ role }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [institutionName, setinstitutionName] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -19,8 +22,25 @@ const Signup = ({ role }) => {
       await axios.post('http://localhost:3001/register', { username, email, password, institutionName, role });
       setError('');
       alert('Registered successfully');
+      navigate('/');
     } catch (err) {
-      setError(err.response.data.message);
+
+      // Handling duplicate key errors
+      if (err.response && err.response.data) {
+        if (err.response.data.message.includes('E11000 duplicate key error collection')) {
+          if (err.response.data.error.includes('email')) {
+            setError('An account with this email already exists.');
+          } else if (err.response.data.error.includes('username')) {
+            setError('An account with this username already exists.');
+          } else {
+            setError('An error occurred. Please try again.');
+          }
+        } else {
+          setError(err.response.data.message || 'An error occurred. Please try again.');
+        }
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     }
   };
 

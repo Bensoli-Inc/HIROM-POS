@@ -7,6 +7,7 @@ function Navbar () {
                         <Link to="/sell-point" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
                                 Sell 
                         </Link>
+                        
                         <Link to="/incoming-stock" className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md">
                                 Receive Stock
                         </Link>

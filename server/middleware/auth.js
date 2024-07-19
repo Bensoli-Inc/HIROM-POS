@@ -1,26 +1,30 @@
 require('dotenv').config();
 
-const express = require('express');
 const jwt= require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const secretKey = process.env.SECRET_KEY; 
+const bcrypt = require('bcryptjs');
+
 const UserModel = require('../models/User')
-
 const authMiddleware = (req, res, next) => {
-    const token = req.header('Authorization').replace('Bearer', '');
-    if (!token) return res.status(401).json({message: 'Access denied. No token provided.'});
-
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    console.log('Received Token:', token); // Log received token
+    if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' });
+  
     try {
-        const decoded = jwt.verify(token, secretKey);
-        req.user = decoded;
-        next();
+      const decoded = jwt.verify(token, secretKey);
+      console.log('Decoded Token:', decoded); // Log decoded token
+      req.user = decoded;
+      next();
     } catch (err) {
-        res.status(400).json({message: 'Invalid token.'});
+      console.log('Token Verification Error:', err); // Log verification error
+      res.status(400).json({ message: 'Invalid token.' });
     }
-};
+  };
+  
+  
 
 const roleMiddleware = (roles) => (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!req.user || !roles.includes(req.user.role)) {
         return res.status(403).json({message: 'Access denied. You do not have permision to perform this action.'});
     }
     next();

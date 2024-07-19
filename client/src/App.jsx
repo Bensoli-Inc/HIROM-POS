@@ -10,26 +10,38 @@ import AllTimeStock from './components/All-time-stock';
 import Charts from './components/Charts';
 import Suppliers from './components/Suppliers';
 import AvailableStock from './components/Realtime-stock';
+import FounderSignup from './components/FounderSignup';
 
 function App() {
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-};
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       const userData = JSON.parse(atob(token.split('.')[1])); // Decode token payload
       setUser(userData);
+      setIsLoggedIn(true);
     }
   }, []);
 
+  const handleLogin = (token) => {
+    if (token) {
+      const userData = JSON.parse(atob(token.split('.')[1])); // Decode token payload
+      localStorage.setItem('token', token);
+      localStorage.setItem('username', userData.username); // Or any other user information
+      setUser(userData);
+      setIsLoggedIn(true);
+    } else {
+      console.error("No token received during login");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
     setUser(null);
+    setIsLoggedIn(false);
   };
 
   const isUserAuthorized = (roles) => {
@@ -42,11 +54,12 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Signup />} />
+        <Route path="/founder-register" element={<FounderSignup />} />
 
         {/* Protected routes */}
         <Route 
           path="/account" 
-          element={isLoggedIn ? <Account /> : <Login onLogin={handleLogin} />} /> 
+          element={isLoggedIn ? <Account /> : <Navigate to="/" />} /> 
   
         <Route 
           path="/sell-point" 
@@ -60,6 +73,7 @@ function App() {
           path="/incoming-stock" 
           element={isUserAuthorized(['founder', 'admin', 'staff']) ? <IncomingStock /> : <Navigate to="/" />} 
         />
+        
         <Route 
           path="/available-stock" 
           element={isUserAuthorized(['founder', 'admin', 'staff']) ? <AvailableStock /> : <Navigate to="/" />} 
@@ -77,11 +91,10 @@ function App() {
           element={isUserAuthorized(['founder', 'admin']) ? <Charts /> : <Navigate to="/" />} 
         />
 
-        {/* Fallback route */}
-        <Route path="*" element={<Navigate to="/" />} />
+        
       </Routes>
-      {user && (
-        <button onClick={handleLogout} className="logout-button">
+      {isLoggedIn && (
+        <button onClick={handleLogout} className="flex bg-red-500 text-white items-center logout-button">
           Logout
         </button>
       )}
