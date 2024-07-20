@@ -15,8 +15,8 @@ const { authMiddleware, roleMiddleware } = require('./middleware/auth');
 const founderSecretKey = process.env.FOUNDER_SECRET_KEY
 
 const app = express()
-app.use(express.json())
-app.use(cors())
+app.use(express.json());
+app.use(cors());
 
 mongoose.connect("mongodb://127.0.0.1:27017/employee");
 console.log('Secret Key:', process.env.SECRET_KEY);
@@ -38,6 +38,10 @@ app.post('/login', async (req, res) => {
    try {
       const {username, password} = req.body;
 
+      if (!username || !password) {
+         return res.status(400).json({ message: 'Username and password are required' });
+       }
+
       const normalizedUsername = username.toLowerCase();
 
       const user = await UserModel.findOne({username: normalizedUsername});
@@ -50,10 +54,10 @@ app.post('/login', async (req, res) => {
       if (!user.isActive) {
          return res.status(403).json({message: 'Account is deactivated. Contact admin.'});
       }
-      const token = jwt.sign({_id: user._id, role: user.role}, secretKey, {expiresIn: '1h'});
+      const token = jwt.sign({_id: user._id, username: user.username, role: user.role}, secretKey, {expiresIn: '1h'});
       console.log('Generated Token:', token); // Log generated token
 
-      res.json({ token, message: `Welcome ${username}`});
+      res.json({ token, username: user.username, role: user.role, message: `Welcome ${username}`});
    } catch (err) {
       res.status(500).json({ message: 'Error logging in', error: err.message });
    }
@@ -96,13 +100,12 @@ app.post('/founder-register', async (req, res) => {
  });
 
 
-// Create Admin api (Only Founder)
 app.post('/create-admin', authMiddleware, roleMiddleware('founder'), async (req, res) => {
    try {
       const {username, email, password, institutionName, role} = req.body;
-      
       const normalizedUsername = username.toLowerCase();
-      const admin = new UserModel({ username: normalizedUsername, email, password, institutionName, role });
+      const admin = new UserModel({ username: normalizedUsername, 
+                                 email, password, institutionName, role });
       await admin.save();
       res.status(201).json({message: 'Admin created successfully'});
    } catch (err) {

@@ -18,18 +18,21 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
+    const role = localStorage.getItem('role'); // Retrieve role from localStorage
+    if (token && role) {
       const userData = JSON.parse(atob(token.split('.')[1])); // Decode token payload
-      setUser(userData);
+      setUser({ ...userData, role }); // Set user with role
       setIsLoggedIn(true);
     }
   }, []);
+
+console.log(isLoggedIn);
 
   const handleLogin = (token) => {
     if (token) {
       const userData = JSON.parse(atob(token.split('.')[1])); // Decode token payload
       localStorage.setItem('token', token);
-      localStorage.setItem('username', userData.username); // Or any other user information
+      localStorage.setItem('role', userData.role); // Store role in localStorage
       setUser(userData);
       setIsLoggedIn(true);
     } else {
@@ -39,7 +42,7 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.removeItem('role'); // Remove role from localStorage
     setUser(null);
     setIsLoggedIn(false);
   };
@@ -50,17 +53,23 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
+    {isLoggedIn && (
+        <button onClick={handleLogout} className="flex bg-red-500 text-white items-center logout-button">
+          Logout
+        </button>
+      )}
+      <Routes >
+
         {/* Public routes */}
-        <Route path="/" element={<Login onLogin={handleLogin} />} />
+        <Route path="/" element={<Login isLoggedIn={isLoggedIn} onLogin={handleLogin} />} />
         <Route path="/register" element={<Signup />} />
         <Route path="/founder-register" element={<FounderSignup />} />
 
         {/* Protected routes */}
         <Route 
           path="/account" 
-          element={isLoggedIn ? <Account /> : <Navigate to="/" />} /> 
-  
+          element={isLoggedIn ? <Account /> : <Navigate to="/" />} 
+        />
         <Route 
           path="/sell-point" 
           element={isUserAuthorized(['founder', 'admin', 'staff']) ? <Sell /> : <Navigate to="/" />} 
@@ -73,7 +82,6 @@ function App() {
           path="/incoming-stock" 
           element={isUserAuthorized(['founder', 'admin', 'staff']) ? <IncomingStock /> : <Navigate to="/" />} 
         />
-        
         <Route 
           path="/available-stock" 
           element={isUserAuthorized(['founder', 'admin', 'staff']) ? <AvailableStock /> : <Navigate to="/" />} 
@@ -90,14 +98,8 @@ function App() {
           path="/charts" 
           element={isUserAuthorized(['founder', 'admin']) ? <Charts /> : <Navigate to="/" />} 
         />
-
-        
       </Routes>
-      {isLoggedIn && (
-        <button onClick={handleLogout} className="flex bg-red-500 text-white items-center logout-button">
-          Logout
-        </button>
-      )}
+      
     </BrowserRouter>
   );
 }
