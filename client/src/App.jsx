@@ -53,13 +53,8 @@ console.log(isLoggedIn);
 
   return (
     <BrowserRouter>
-    {isLoggedIn && (
-        <button onClick={handleLogout} className="flex bg-red-500 text-white items-center logout-button">
-          Logout
-        </button>
-      )}
       <Routes >
-
+        
         {/* Public routes */}
         <Route path="/" element={<Login isLoggedIn={isLoggedIn} onLogin={handleLogin} />} />
         <Route path="/register" element={<Signup />} />
@@ -99,7 +94,11 @@ console.log(isLoggedIn);
           element={isUserAuthorized(['founder', 'admin']) ? <Charts /> : <Navigate to="/" />} 
         />
       </Routes>
-      
+      {isLoggedIn && (
+        <button onClick={handleLogout} className="flex bg-red-500 text-white items-center logout-button">
+          Logout
+        </button>
+      )}
     </BrowserRouter>
   );
 }

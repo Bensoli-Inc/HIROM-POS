@@ -42,13 +42,11 @@ function Account() {
         });
         const { username, email, role } = userResponse.data;
         console.log('User data fetched:', { username, email, role });
-
-        // Update state with fetched data
         setUsername(username);
         setEmail(email);
         setRole(role);
 
-        // Fetch additional data (e.g., admins)
+        // Fetch additional data
         await fetchAdmins();
       } catch (err) {
         console.error('Error fetching user data:', err);
@@ -57,6 +55,7 @@ function Account() {
         navigate('/'); // Redirect to login if an error occurs
       }
     };
+
     fetchData();
   }, [navigate]);
 
@@ -154,7 +153,7 @@ function Account() {
   };
 
   return (
-    <div className="flex bg-gradient-to-r from-blue-50 to-blue-100 min-h-screen">
+    <div className="flex bg-white  min-h-screen">
       <div className="flex-1 flex flex-col p-4">
         <div className="flex justify-between items-center py-4 mb-4 border-b border-gray-300">
           <h1 className="text-3xl font-bold text-blue-900">MORIAH ERP SYSTEM</h1>
@@ -166,48 +165,12 @@ function Account() {
           </button>
         </div>
 
-        <div className='flex justify-between items-center py-3 mb-3 border-b border-gray-300'>
-          <div className='flex flex-col items-center border-r border-blue-300 mb-6'>
+        <div className='flex justify-center items-center py-3 mb-3 border-b border-gray-300'>
+          <div className="flex flex-col items-center justify-center w-full sm:w-1/3 lg:w-1/4 p-4">
             <div className='flex items-center justify-center mb-3'>
               <h2 className="text-4xl text-gray-700 font-bold mb-2">{`Welcome, ${username}`}</h2>
             </div>
-            <div className="flex flex-wrap gap-4">
-              <div className="flex-1">
-                <div className="flex flex-wrap">
-                  {admins.length > 0 ? (
-                    admins.map((admin) => (
-                      <div key={admin._id} className="flex flex-col w-full sm:w-1/2 lg:w-1/3 p-2">
-                        <div className="bg-white shadow-md p-4 rounded">
-                          <h4 className="text-xl font-semibold">{admin.username}</h4>
-                          <p>Email: {admin.email}</p>
-                          <p>Institution: {admin.institutionName}</p>
-                          {admin.isActive ? (
-                            <button
-                              onClick={() => handleDeactivate(admin._id)}
-                              className="mt-2 bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700"
-                            >
-                              Deactivate Admin
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleReactivate(admin._id)}
-                              className="mt-2 bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700"
-                            >
-                              Reactivate Admin
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No admins found.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex-none w-full sm:w-1/3 lg:w-1/4 p-4">
-            <div className="bg-white border border-blue-400 shadow-lg p-6 rounded-lg transition-transform transform hover:scale-105">
+            <div className="bg-blue-100 border border-blue-400 shadow-lg p-6 rounded-lg transition-transform transform hover:scale-105">
               <h2 className="text-lg flex justify-center font-bold mb-4">Settings</h2>
               <p className="text-md mb-2">Name: {username}</p>
               <p className="text-md mb-2">Email: <span>{email}</span></p>
@@ -318,6 +281,45 @@ function Account() {
                   Change Password
                 </button>
               )}
+            </div>
+          </div>
+          <div className='flex flex-col items-center justify-center border-r border-blue-300 mb-6'>
+            <div className='flex items-center justify-center mb-2'>
+              <h2 className="text-3xl text-orange-500 font-semibold mb-2">Admins List</h2>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex-1">
+                <div className="flex flex-wrap">
+                  {admins.length > 0 ? (
+                    admins.map((admin) => (
+                      <div key={admin._id} className="flex flex-col w-full sm:w-1/2 lg:w-1/3 p-2">
+                        <div className="bg-blue-100 shadow-md p-4 rounded">
+                          <h4 className="text-xl font-semibold">{admin.username}</h4>
+                          <p>Email: {admin.email}</p>
+                          <p>Institution: {admin.institutionName}</p>
+                          {admin.isActive ? (
+                            <button
+                              onClick={() => handleDeactivate(admin._id)}
+                              className="mt-2 bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700"
+                            >
+                              Deactivate Admin
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleReactivate(admin._id)}
+                              className="mt-2 bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700"
+                            >
+                              Reactivate Admin
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No admins found.</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
