@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -36,8 +36,15 @@ const Login = ({ onLogin, isLoggedIn }) => {
 
       // Delaying the navigation to ensure the toast message is visible
       setTimeout(() => {
-        if (isLoggedIn) {
-        navigate('/account');
+        // Navigate based on the user role
+        if (role === 'founder') {
+          navigate('/account');
+        } else if (role === 'admin') {
+          navigate('/admindash');
+        } else if (role === 'staff') {
+          navigate('/staffdash');
+        } else {
+          navigate('/'); // Default route in case of an unknown role
         }
       }, 1500);
 
@@ -58,12 +65,6 @@ const Login = ({ onLogin, isLoggedIn }) => {
       });
     }
   };
-
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     navigate('/account');
-  //     }
-  // }, [isLoggedIn])
 
   return (
     <div className='flex justify-center items-center bg-blue-100 h-screen'>

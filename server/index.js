@@ -99,7 +99,6 @@ app.post('/founder-register', async (req, res) => {
    }
  });
 
-
 app.post('/create-admin', authMiddleware, roleMiddleware('founder'), async (req, res) => {
    try {
       const {username, email, password, institutionName, role} = req.body;
@@ -109,7 +108,16 @@ app.post('/create-admin', authMiddleware, roleMiddleware('founder'), async (req,
       await admin.save();
       res.status(201).json({message: 'Admin created successfully'});
    } catch (err) {
-      res.status(400).json({message: 'Error creating admin', error: err.message});
+      if (err.code === 11000) {
+         if (err.message.includes('email')) {
+           return res.status(400).json({ message: 'An account with this email already exists.' });
+         }
+      
+         if (err.message.includes('username')) {
+           return res.status(400).json({ message: 'An account with this username already exists.' });
+         }
+       }
+       res.status(400).json({message: 'Error creating admin', error: err.message});
    }
 });
 
@@ -130,10 +138,29 @@ app.post('/create-staff', authMiddleware, roleMiddleware(['admin']), async (req,
       await staff.save();
       res.status(201).json({message: 'Staff created successfully'});
    } catch (err) {
-      res.status(400).json({message: 'Error creating staff', error: err.message});
+      console.error('Error during registration:', err); 
+      if (err.code === 11000) {
+         if (err.message.includes('email')) {
+           return res.status(400).json({ message: 'An account with this email already exists.' });
+         }
+      
+         if (err.message.includes('username')) {
+           return res.status(400).json({ message: 'An account with this username already exists.' });
+         }
+       }
+       res.status(400).json({message: 'Error creating staff', error: err.message});
    }
 });
 
+app.get('/staff', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
+   try {
+     const staff = await UserModel.find({ role: 'staff' });
+     res.json({ staff });
+   } catch (err) {
+     res.status(500).json({ message: 'Error fetching admins', error: err.message });
+   }
+ });
+ 
 
 // Deactivate Account (Founder/Admin for Admin/Staff)
 app.put('/deactivate/:id', authMiddleware, async (req, res) => {

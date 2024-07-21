@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import Sell from './components/Sell';
-import Account from './components/Account';
+import Account from './components/FounderDashboard';
 import ApprovedSales from './components/Approved-sales';
 import IncomingStock from './components/IncomingStock';
 import AllTimeStock from './components/All-time-stock';
@@ -11,6 +11,8 @@ import Charts from './components/Charts';
 import Suppliers from './components/Suppliers';
 import AvailableStock from './components/Realtime-stock';
 import FounderSignup from './components/FounderSignup';
+import AdminDash from './components/AdminDashboard';
+import StaffDash from './components/StaffDashboard';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -64,6 +66,14 @@ console.log(isLoggedIn);
         <Route 
           path="/account" 
           element={isLoggedIn ? <Account /> : <Navigate to="/" />} 
+        />
+        <Route 
+          path="/admindash" 
+          element={isLoggedIn ? <AdminDash /> : <Navigate to="/" />} 
+        />
+        <Route 
+          path="/staffdash" 
+          element={isLoggedIn ? <StaffDash /> : <Navigate to="/" />} 
         />
         <Route 
           path="/sell-point" 
