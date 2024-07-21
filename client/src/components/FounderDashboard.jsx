@@ -187,10 +187,10 @@ function Account() {
   };
 
   return (
-    <div className="flex bg-blue-800 min-h-screen">
-      <div className="flex-1 flex flex-col p-4 max-lg:p-2">
-        <div className="flex bg-white justify-between items-center py-4 px-4 mb-4 max-lg:mb-2 border-b border-gray-300">
-          <h1 className="text-4xl max-lg:text-2xl font-bold text-blue-900">MORIAH ERP SYSTEM</h1>
+    <div className="bg-gradient-to-r from-blue-900 via-blue-500 to-red-200 animate-gradientMove shadow-lg w-full min-h-screen">
+      <div className="flex-1 flex flex-col p-4 max-lg:p-2 ">
+        <div className="flex justify-between items-center py-4 px-4 mb-4 max-lg:mb-2 border-b border-gray-300">
+          <h1 className="text-4xl max-lg:text-2xl font-bold text-white">NOBILES ERP SYSTEM</h1>
           <button
             onClick={handleLogout}
             className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded transition duration-300"
@@ -199,13 +199,17 @@ function Account() {
           </button>
         </div>
 
-        <div className="flex flex-row max-lg:flex-col justify-center px-8 max-lg:px-3 py-3 mb-3 border-b border-gray-300">
-          <div className="flex flex-col gap-3 border-b border-gray-300 max-lg:gap-2 mb-3 items-center w-full px-7 max-lg:px-12 py-3">
-            <div className="flex items-center justify-center mb-3">
-              <h2 className="text-4xl max-lg:text-2xl font-bold text-blue-900 leading-[70px]">{`Welcome, ${capitalizeFirstLetter(username)}`}</h2>
+        <div className="flex flex-row  max-lg:flex-col justify-center px-8 max-lg:px-3 py-3 mb-3 border-b border-gray-300">
+          <div className="flex flex-col gap-3 border-b border-gray-300 max-lg:gap-2 max-lg:mb-7 items-center w-full px-7 max-lg:px-5 py-3 rounded-lg">
+            <div className="flex items-center justify-center mb-3 max-lg:mb-5 p-2 bg-gradient-to-r from-blue-800 via-blue-400 to-red-100 rounded-lg shadow-inner shadow-blue-500/50 shadow-blue-500/30">
+              <h2 className="text-4xl max-lg:text-2xl font-bold text-orange-600 leading-[70px]">
+                {`Welcome, ${capitalizeFirstLetter(username)}`}
+              </h2>
             </div>
-            <div className="flex flex-col bg-white items-center border border-blue-400 shadow-lg p-6  rounded-lg transition-transform transform hover:scale-95">
-              <h2 className="text-lg flex justify-center font-bold mb-4 max-lg:mb-2">Settings</h2>
+
+
+            <div className="flex flex-col bg-white items-center border border-blue-400 shadow-lg p-6 max-lg:p-4 rounded-lg shadow-inner shadow-blue-500/50 shadow-blue-500/40 transition-transform transform hover:scale-105">
+              <h2 className="text-xl flex justify-center font-bold mb-4 max-lg:mb-2">Main Dashboard</h2>
               <div>
                 <p className="text-md mb-2">Name: {capitalizeFirstLetter(username)}</p>
                 <p className="text-md mb-2">Email: {email}</p>
@@ -236,16 +240,16 @@ function Account() {
               </button>
             </div>
           </div>
-          <div className='flex flex-col gap-2 items-center justify-center w-full border-r border-blue-300 px-6 max-lg:px-10'>
+          <div className='flex flex-col gap-2 items-center justify-center w-full border-r border-blue-300 px-6 max-lg:px-5'>
             <div  >
               {!showAdminForm && !showChangePassword && !showAdminsList && (
                 <div className='flex flex-col items-center justify-center mb-3'>
-                  <h2 className="text-3xl max-lg:text-2xl text-orange-500 font-semibold mb-2">{`${capitalizeFirstLetter(role)} Session in progress`}</h2>
-                  <p className="text-md text-center text-gray-500">Track your sales, <br /> Track stock <br /> Keep stock upto date </p>
+                  <h2 className="text-3xl max-lg:text-2xl text-white font-semibold mb-2">{`${capitalizeFirstLetter(role)} Session in progress`}</h2>
+                  <p className="text-md text-center text-white">Track your sales, <br /> Track stock <br /> Keep stock upto date </p>
                </div>
               )}
               {showAdminForm && (
-                <div className="flex flex-col justify-center items-center w-full bg-green-100 border border-green-500 shadow-lg p-6 rounded-lg">
+                <div className="flex flex-col justify-center items-center w-full bg-green-100 border border-green-500 shadow-lg shadow-inner shadow-green-500/50 shadow-green-500/40 transition-transform transform hover:scale-95 p-6 max-lg:p-4 rounded-lgflex flex-col justify-center items-center w-full bg-green-100 border border-green-500 shadow-lg shadow-inner shadow-green-500/50 shadow-green-500/40 transition-transform transform hover:scale-95 p-6 max-lg:p-4 rounded-lg">
                   <h3 className="text-xl font-bold mb-4 text-green-600">Create Admin</h3>
                   <form onSubmit={handleAdminSubmit} className="flex flex-col gap-2 w-full max-w-md">
                     <input
@@ -305,8 +309,8 @@ function Account() {
                 </div>
               )}
               {showChangePassword && (
-                <div className="flex flex-col justify-center items-center w-full bg-purple-100 border border-purple-500 shadow-lg p-6 max-lg:p-4 rounded-lg">
-                  <h3 className="text-xl font-bold mb-4 text-purple-600">Change Password</h3>
+                <div className="flex flex-col justify-center items-center w-full bg-green-100 border border-green-500 shadow-lg shadow-inner shadow-green-500/50 shadow-green-500/40 transition-transform transform hover:scale-95 p-6 max-lg:p-4 rounded-lg">
+                  <h3 className="text-xl font-bold mb-4 text-green-600">Change Password</h3>
                   <form onSubmit={handleChangePassword} className="flex flex-col gap-2 w-full max-w-md">
                     <input
                       type="password"
@@ -326,7 +330,7 @@ function Account() {
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded"
+                      className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-semibold rounded"
                     >
                       Change Password
                     </button>
@@ -341,13 +345,13 @@ function Account() {
                 </div>
               )}
               {showAdminsList && (
-                <div className="flex flex-col justify-center items-center w-full bg-orange-100 border border-orange-500 shadow-lg p-6 max-lg:px-3 rounded-lg">
+                <div className="flex flex-col justify-center items-center w-full bg-gradient-to-r from-red-100 via-blue-500 to-blue-800 border border-orange-500 shadow-lg p-6 max-lg:px-3 rounded-lg">
                   <h3 className="text-xl font-bold mb-4 text-orange-600">All Admins</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                     {admins.map((admin) => (
                       <div
                         key={admin._id}
-                        className="border border-gray-400 shadow-md p-3 rounded-md flex flex-col items-center justify-center"
+                        className="border border-gray-400 shadow-md p-3 rounded-md bg-white flex flex-col items-center justify-center"
                       >
                         <div>
                           <p className="text-md mb-2"><strong>Username:</strong> {admin.username}</p>

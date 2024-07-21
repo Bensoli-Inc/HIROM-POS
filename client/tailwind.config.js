@@ -3,8 +3,15 @@ module.exports = {
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}',],
   theme: {
     extend: {
+      keyframes: {
+        gradientMove: {
+          '0%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
+          '100%': { 'background-position': '0% 50%' },
+        },
+      },
       animation: {
-        'pulse-slow': 'pulse 15s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        gradientMove: 'gradientMove 8s ease infinite',
       },
     },
   },
