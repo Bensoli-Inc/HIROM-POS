@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 function Navbar() {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState(null);
+  
+  
 
   useEffect(() => {
     // Retrieve role from localStorage
