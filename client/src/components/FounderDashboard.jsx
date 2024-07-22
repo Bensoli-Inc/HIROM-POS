@@ -25,6 +25,7 @@ function Account() {
   const [passwordChange, setPasswordChange] = useState({
     oldPassword: '',
     newPassword: '',
+    confirmPassword: '',
   });
   const navigate = useNavigate();
 
@@ -156,6 +157,10 @@ function Account() {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
+    if (passwordChange.password !== passwordChange.confirmPassword) {
+      toast.error('Passwords should match confirm Password');
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
       await axios.put('http://localhost:3001/change-password', passwordChange, {
@@ -350,6 +355,14 @@ function Account() {
                       placeholder="New Password"
                       value={passwordChange.newPassword}
                       onChange={(e) => setPasswordChange({ ...passwordChange, newPassword: e.target.value })}
+                      className="border p-2 rounded-md"
+                      required
+                    />
+                    <input
+                      type="password"
+                      placeholder="Confirm Password"
+                      value={passwordChange.confirmPassword}
+                      onChange={(e) => setPasswordChange({ ...passwordChange, confirmPassword: e.target.value })}
                       className="border p-2 rounded-md"
                       required
                     />

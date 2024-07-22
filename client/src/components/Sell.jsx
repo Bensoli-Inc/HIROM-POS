@@ -194,9 +194,9 @@ const handleApprove = async (id) => {
         <div className="flex bg-gradient-to-r from-blue-900 via-blue-500 to-red-200 animate-gradientMove shadow-lg w-full min-h-screen">
             {showNavbar && <Navbar />}
             <div className="bg-gradient-to-r from-blue-900 via-blue-500 to-red-200 animate-gradientMove shadow-lg w-full min-h-screen flex flex-col p-3 gap-3 items-center h-screen w-full">
-                <div className="flex bg-white w-full py-3 px-6 rounded-lg justify-between items-center">
+                <div className="flex bg-white w-full py-3 px-6 rounded-lg justify-center max-lg:justify-between items-center">
                     <h2 className="text-4xl max-lg:text-2xl py-3 font-bold leading-10 text-blue-500">
-                        NOBILES Selling Point
+                        Nobiles Selling Point
                     </h2>
                     {!showNavbar && 
                     <button onClick={handlePopupToggle}
