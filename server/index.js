@@ -14,7 +14,7 @@ const bcrypt = require('bcryptjs');
 const { authMiddleware, roleMiddleware } = require('./middleware/auth');
 const founderSecretKey = process.env.FOUNDER_SECRET_KEY
 
-const app = express()
+const app = express();
 app.use(express.json());
 app.use(cors());
 

@@ -60,10 +60,10 @@ const FounderSignup = () => {
   };
 
   return (
-    <div className='flex justify-center items-center bg-blue-100 px-5 py-4'>
-      <div className='bg-white p-6 rounded-lg w-96 shadow'>
+    <div className='flex justify-center items-center flex bg-gradient-to-r p-6 from-blue-900 via-blue-500 to-red-200 animate-gradientMove shadow-lg w-full min-h-screen'>
+      <div className='bg-white p-6 rounded-lg lg:w-96 shadow'>
         <div className="flex flex-col justify-center items-center gap-2 font-bold mb-4">
-          <h1 className="text-2xl text-blue-700">MORIAH ERP SYSTEM</h1>
+          <h1 className="text-2xl text-blue-700">NOBILES ERP SYSTEM</h1>
           <h2 className="text-xl text-blue-500">Founder Sign Up</h2>
         </div>
         <form onSubmit={handleRegister}>

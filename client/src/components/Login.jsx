@@ -9,6 +9,13 @@ const Login = ({ onLogin, isLoggedIn }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [isAnimating, setIsAnimating] = useState(true);
+
+  const handleClick = () => {
+    setIsAnimating(false);
+
+  };
+    
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -67,20 +74,22 @@ const Login = ({ onLogin, isLoggedIn }) => {
   };
 
   return (
-    <div className='flex justify-center items-center bg-blue-100 h-screen'>
-      <div className='bg-white p-6 rounded-lg w-96 shadow'>
-        <div className="flex flex-col justify-center items-center gap-2 font-bold mb-4">
-          <h1 className="text-2xl text-blue-700">
-            MORIAH ERP SYSTEM
+    <div className='flex items-center justify-center bg-gradient-to-r from-blue-900 via-blue-500 to-red-200 animate-gradientMove shadow-lg w-full P-3 min-h-screen'>
+      <div className='bg-white rounded-lg py-6 lg:w-96 shadow'>
+        <div className="flex flex-col overflow-hidden justify-center items-center gap-2 font-bold mb-4">
+          <h1 className={`max-lg:text-xl text-2xl text-blue-700 leading-[70px] ${isAnimating ? 'animate-slide' : ''}`}>
+            NOBILES ERP SYSTEM
           </h1>
           <h2 className="text-xl text-blue-500">Login</h2>
         </div>
-        <form onSubmit={handleLogin}>
+        <form className='px-6'
+            onSubmit={handleLogin}>
           <div className="mb-3">
             <label className="block text-blue-700 font-semibold mb-2">Username</label>
             <input
               type="text"
               value={username}
+              onClick={handleClick}
               onChange={(e) => setUsername(e.target.value)}
               className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -91,6 +100,7 @@ const Login = ({ onLogin, isLoggedIn }) => {
             <input
               type="password"
               value={password}
+              onClick={handleClick}
               onChange={(e) => setPassword(e.target.value)}
               className="border border-blue-300 w-full rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
