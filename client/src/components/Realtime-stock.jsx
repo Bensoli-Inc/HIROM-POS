@@ -21,6 +21,10 @@ const AvailableStock = ()=> {
     handleDashboardClick();
   };
     
+  const handlePopClose = () => {
+    setShowPopup(false);
+  };
+
     const isLargeScreen = useMediaQuery({ minWidth: 1024 });
 
     useEffect(() => {
@@ -96,7 +100,7 @@ const AvailableStock = ()=> {
                     </button> }  
                 </div>
                 <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
-                    <h1 className="text-xl max-lg:text-md font-bold py-3 text-center ">Updated List of Items currently remaining in stock</h1>
+                    <h1 className="text-xl max-lg:text-md font-bold py-3 text-center ">Updated Report of Items currently remaining in stock</h1>
                     <table className="min-w-full bg-white border border-gray-200">
                         <thead>
                             <tr className="bg-gray-100">
@@ -201,6 +205,12 @@ const AvailableStock = ()=> {
               className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md bg-blue-800"
             >
               Dashboard
+            </button>
+            <button
+              onClick={handlePopClose}
+              className="w-5/6 text-md font-bold text-center hover:bg-red-600 text-white py-2 rounded-md bg-red-800"
+            >
+              Close
             </button>
           </div>
         </div>

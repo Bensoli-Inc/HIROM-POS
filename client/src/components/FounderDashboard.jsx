@@ -10,6 +10,7 @@ function Account() {
   const [role, setRole] = useState('');
   const [error, setError] = useState('');
   const [admins, setAdmins] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
   const [showAdminForm, setShowAdminForm] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showAdminsList, setShowAdminsList] = useState(false);
@@ -26,6 +27,31 @@ function Account() {
     newPassword: '',
   });
   const navigate = useNavigate();
+
+  const handlePopupToggle = () => {
+    setShowPopup(!showPopup);
+  };
+
+  const handleLinkClick = () => {
+    setShowPopup(false);
+    handleDashboardClick();
+  };
+
+  const handlePopClose = () => {
+    setShowPopup(false);
+  };
+
+  const handleDashboardClick = () => {
+    if (role === 'founder') {
+      navigate('/account');
+    } else if (role === 'admin') {
+      navigate('/admindash');
+    } else if (role === 'staff') {
+      navigate('/staffdash');
+    } else {
+      navigate('/'); // Default route if no valid role is found
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -215,11 +241,10 @@ function Account() {
                 <p className="text-md mb-2">Email: {email}</p>
                 <p className="text-md mb-4">Role: {capitalizeFirstLetter(role)}</p>
               </div>
-              <button className="w-5/6 mt-2 mb-3 text-md text-center bg-blue-500 hover:bg-blue-600 text-white rounded-md py-2 px-3">
-                <Link to="/incoming-stock">
-                  Stock & Sells
-                </Link>
-              </button>
+                    <button onClick={handlePopupToggle}
+                                  className="w-5/6 mt-2 mb-3 text-md text-center bg-blue-500 hover:bg-blue-600 text-white rounded-md py-2 px-3">
+                              Stock & Sells
+                    </button>
               <button 
                 onClick={() => handleButtonClick('showAdminsList')}
                 className="w-5/6 mt-2 mb-3 text-md text-center bg-blue-500 hover:bg-blue-600 text-white rounded-md py-2 px-3"
@@ -392,6 +417,86 @@ function Account() {
         </div>
       </div>
       <ToastContainer />
+      {showPopup && (
+        <div
+          className="fixed top-0 left-0 w-5-6 h-full bg-gray-900 bg-opacity-75 py-8 "
+          style={{
+            height: '100%',
+            width: '100%',
+          }}
+        >
+          <div
+            className="fixed w-3/6 right-3 max-w-md p-4 flex flex-col justify-center items-center gap-3 bg-blue-900 rounded-lg text-white shadow-lg"
+            style={{
+              height: 'auto',
+              maxWidth: '90%',
+              maxHeight: '90%',
+            }}
+          >
+            <Link
+              to="/sell-point"
+              className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md"
+              onClick={handleLinkClick}
+            >
+              Sell
+            </Link>
+            <Link
+              to="/incoming-stock"
+              className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md"
+              onClick={handleLinkClick}
+            >
+              Receive Stock
+            </Link>
+            <Link
+              to="/available-stock"
+              className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md"
+              onClick={handleLinkClick}
+            >
+              Realtime Stock
+            </Link>
+            <Link
+              to="/approved-sales"
+              className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md"
+              onClick={handleLinkClick}
+            >
+              Approved Sales
+            </Link>
+            <Link
+              to="/all-time-stock"
+              className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md"
+              onClick={handleLinkClick}
+            >
+              AllTime Stock
+            </Link>
+            <Link
+              to="/charts"
+              className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md"
+              onClick={handleLinkClick}
+            >
+              Charts/graphs
+            </Link>
+            <Link
+              to="/suppliers"
+              className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md"
+              onClick={handleLinkClick}
+            >
+              Suppliers
+            </Link>
+            <button
+              onClick={handleLinkClick}
+              className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md bg-blue-800"
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={handlePopClose}
+              className="w-5/6 text-md font-bold text-center hover:bg-red-600 text-white py-2 rounded-md bg-red-800"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

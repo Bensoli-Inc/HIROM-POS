@@ -20,6 +20,10 @@ function AllTimeStock() {
     handleDashboardClick();
   };
     
+  const handlePopClose = () => {
+    setShowPopup(false);
+  };
+
     const isLargeScreen = useMediaQuery({ minWidth: 1024 });
 
     useEffect(() => {
@@ -70,15 +74,15 @@ function AllTimeStock() {
                 </div>
                 <div className="bg-white w-full h-screen flex flex-col items-center rounded-lg">
                     <h1 className="text-xl font-bold py-3 text-center ">All items ever supplied </h1>
-                    <table className="min-w-full bg-white border border-gray-200">
+                    <table className="w-full max-lg:w-4/6 bg-white border border-gray-200">
                         <thead>
-                            <tr className="bg-gray-100">
-                            <th className="border px-4 py-2">Item</th>
-                            <th className="border px-4 py-2">Quantity</th>
-                            <th className="border px-4 py-2">Pieces</th>
-                            <th className="border px-4 py-2">Buying Price/P/Q</th>
-                            <th className="border px-4 py-2">Total</th>
-                            <th className="border px-4 py-2">Date</th>
+                            <tr className="max-lg:text-sm max-lg:px-2 bg-gray-100">
+                            <th className="border px-4 max-lg:px-0.5 py-2">Item</th>
+                            <th className="border px-4 max-lg:px-0.5 py-2">Quantity</th>
+                            <th className="border px-4 max-lg:px-0.5 py-2">Pieces</th>
+                            <th className="border px-4 max-lg:px-0.5 py-2">Buying Price/P/Q</th>
+                            <th className="border px-4 max-lg:px-0.5 py-2">Total</th>
+                            <th className="border px-4 max-lg:px-0.5 py-2">Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -167,6 +171,12 @@ function AllTimeStock() {
               className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md bg-blue-800"
             >
               Dashboard
+            </button>
+            <button
+              onClick={handlePopClose}
+              className="w-5/6 text-md font-bold text-center hover:bg-red-600 text-white py-2 rounded-md bg-red-800"
+            >
+              Close
             </button>
           </div>
         </div>

@@ -27,6 +27,10 @@ function Sell () {
     handleDashboardClick();
   };
     
+  const handlePopClose = () => {
+    setShowPopup(false);
+  };
+
     const isLargeScreen = useMediaQuery({ minWidth: 1024 });
 
     useEffect(() => {
@@ -434,6 +438,12 @@ const handleApprove = async (id) => {
               className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md bg-blue-800"
             >
               Dashboard
+            </button>
+            <button
+              onClick={handlePopClose}
+              className="w-5/6 text-md font-bold text-center hover:bg-red-600 text-white py-2 rounded-md bg-red-800"
+            >
+              Close
             </button>
           </div>
         </div>

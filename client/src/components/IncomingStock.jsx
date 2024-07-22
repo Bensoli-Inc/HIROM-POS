@@ -26,6 +26,10 @@ function IncomingStock () {
     handleDashboardClick();
   };
     
+  const handlePopClose = () => {
+    setShowPopup(false);
+  };
+  
     const isLargeScreen = useMediaQuery({ minWidth: 1024 });
 
     useEffect(() => {
@@ -169,7 +173,7 @@ function IncomingStock () {
         <div className="flex bg-gradient-to-r from-blue-900 via-blue-500 to-red-200 animate-gradientMove shadow-lg w-full min-h-screen">
             {showNavbar && <Navbar />}
             <div className="bg-gradient-to-r from-blue-900 via-blue-500 to-red-200 animate-gradientMove shadow-lg w-full min-h-screen flex flex-col p-3 gap-3 items-center h-screen w-full">
-            <div className="flex bg-white w-full py-3 px-6 rounded-lg justify-between items-center">
+                <div className="flex bg-white w-full py-3 px-6 rounded-lg justify-between items-center">
                     <h2 className="text-4xl max-lg:text-2xl py-3 font-bold leading-10 text-blue-500">
                         Stock receiving Point
                     </h2>
@@ -460,6 +464,12 @@ function IncomingStock () {
               className="w-full text-md font-bold text-center hover:bg-blue-600 text-white py-2 rounded-md bg-blue-800"
             >
               Dashboard
+            </button>
+            <button
+              onClick={handlePopClose}
+              className="w-5/6 text-md font-bold text-center hover:bg-red-600 text-white py-2 rounded-md bg-red-800"
+            >
+              Close
             </button>
           </div>
         </div>
