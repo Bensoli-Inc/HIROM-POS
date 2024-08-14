@@ -82,7 +82,7 @@ function StaffDash() {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passwordChange.password !== passwordChange.confirmPassword) {
-      toast.error('Passwords should match');
+      toast.error('Passwords should match confirm Password');
       return;
     }
     try {
